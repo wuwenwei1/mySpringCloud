@@ -1,0 +1,124 @@
+server:
+  port: 8080
+token:
+  header: Authorization
+  # Base64编码 RSA 公钥秘钥
+  publicKeyStr: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAj4Oyzzn+cvr860HYb9IdrbouU7qV/5Qbqt4BE77pPKOT3k+bWph5uZ2kkRxaSNkTAIu4f/nMKRJLacEQ8kN9fbW9njmxwG78zkoFkb/dLP6c0UXat7Em1EYyaHi7ktaGAUc2q+ho/Kyq5F8mixjpAlcLRPuaUnr7KUJUg2I+lg6vJG2fXIMU9ecUCFw5PhK1gWMcMnqUfA9c2P3jOitpAenxYz11SbwYvuLPVZRvew7ijkdrMJ0C40jnDNSm5yJn5dXyIhYd+yo9pyxF/3fS/E6I3mAnigs/8upLxqEyIPyVfZjGolw7vsm9SK7WNGodgOuA37RFDfEMwkVhqeWZ2wIDAQAB
+  privateKeyStr: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCPg7LPOf5y+vzrQdhv0h2tui5TupX/lBuq3gETvuk8o5PeT5tamHm5naSRHFpI2RMAi7h/+cwpEktpwRDyQ319tb2eObHAbvzOSgWRv90s/pzRRdq3sSbURjJoeLuS1oYBRzar6Gj8rKrkXyaLGOkCVwtE+5pSevspQlSDYj6WDq8kbZ9cgxT15xQIXDk+ErWBYxwyepR8D1zY/eM6K2kB6fFjPXVJvBi+4s9VlG97DuKOR2swnQLjSOcM1KbnImfl1fIiFh37Kj2nLEX/d9L8TojeYCeKCz/y6kvGoTIg/JV9mMaiXDu+yb1IrtY0ah2A64DftEUN8QzCRWGp5ZnbAgMBAAECggEAC43KlqSwclj4MAfNi8xqh5gpGaQ4Zj/qGE/7iIztTGyjlMQWREK+mK3IgsbkZ9/+B88NK/8UK4GltkkM+wwUQst1DWjPVtLjTHJTeh/sXQPPOTPlVLY7jjRr432bevSwC333DfujKXsh3kqLblWzkJ9/Be828IlRG3RpHGi2PttR5QdOg35ulRNr4xmfvzXXx9kZ6Q448q4Q8DWcUrqHgS5QRtaCyJbcK/kWI6eL3nzTG1eyaNsnEwh4bW4Zq6L0IMQuU70haXGcm7BtlJvI1n+nAa2g3CCQdoYHzpaPib845F2D6CY9wCBLPvQhxMF+Nz+eQFP2xak+5umIpihQ0QKBgQDHx+EDZVr3BaOEVMAx+HpFti4fa20B+u3Jtc73yNuHL3juIGOY3m0I+X9DnM6tSNQj52Tc4MucMGWG4v5MybttCVbc206tpFhIDRNxp7AfkMIPwFmjf7cj+K7GbcVTJdUeZgsjvVMVtCe9HNQpyyEFCh4q1HzwyiE/cpsjtuI9ywKBgQC35mrYZheoJ9n/5znpfRLkymmBhVehQl6n4fAFGfNiKeIp4kQU7I0fTjopKnIufcpDNW4pAeRHYuBceP8YjYB7BkX8k1iF0FJEqKzulyl0imAoaZCNtSvhu6JDJM+z2RSXnMUGYptJr5tkWFxyIMBiL8r9sP2eJZU2AHN1uM6SMQKBgQCp7NHv8ILJv0sQ4IFFP6LIrqdWZCoo2ATvX6u1yGso9fD3Iid0vCOj0Ys0uCh27Y47J7L7yFyG8gc5DtPb/m5j1ODEI+ks+q94QV77efTtNFRLz4Cu94+PkhMehfmjuncmTwdEk+EagcyXJvEyxyrDvZJhPbEzoclbzSA15XVTtwKBgCjE41EAKSR1WUX7PAKAYOzp1sQJDKlKbnOnii+HVkaf5GzGpbNB0fNrw0cXCuM1rd6CfN6IddRBnl3B0UPfMumTNXbOL6TSzzo7bsMiLeWRO8oZxRs1W/oaP9nE0msbqA4IikFlIOoQDVIMqMoAasYZtFXTpBYoXNDw/qfNhbYxAoGAASyNfgCaeIq2NBwpwdeRKPGXb+I4VuAMYkyMOyF0mf82jCVDlQN2lM7GWZQHutOhNW+A3BxRMQSzRogzDlqFhCBoEiKOpxN1AezOW9kk7EdPCP+en93BCpVfTXIGGDRxB2NkApQQy3Y3GLPxEqk7ODvffYsKB3wv7TX71VaKEfQ=
+  # 令牌有效期（单位：分钟，默认30分钟，86400-60天）
+  expireTime: 86400
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  config-location: classpath:mybatis-config.xml
+active:
+  topic: myActiveTopicName
+spring:
+  jmx:
+    enabled: false
+    default-domain: messhallsdf
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: csmysql..
+    url: jdbc:mysql://182.44.12.180:4565/metrology?serverTimezone=UTC&characterEncoding=utf-8
+    druid:
+      #配置可视化控制台页面
+      stat-view-servlet:
+        enabled: true
+        #访问德鲁伊监控页面的地址
+        url-pattern: /druid/*
+        #IP白名单 没有配置或者为空 则允许所有访问
+        allow: localhost,127.0.0.1
+        #IP黑名单 若白名单也存在 则优先使用
+        deny:
+        #禁用重置按钮
+        reset-enable: false
+        #登录所用的用户名与密码
+        login-username: admin
+        login-password: 123456
+      # 初始化时建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时
+      initial-size: 3
+      # 连接池中的最小空闲连接数，Druid会定时扫描连接池的连接，如果空闲的连接数大于该值，则关闭多余的连接，反之则创建更多的连接以满足最小连接数要求。
+      min-idle: 3
+      # 连接池支持的最大连接数。一般取值20就可以了，一般把maxActive设置成可能的并发量就行了。
+      max-active: 5
+      #连接池中连接用完时,新的请求等待获取连接的时间,毫秒，取值-1，表示无限等待，直到超时为止，取值5000，表示5秒后超时。超过时间会出错误信息
+      max-wait: 3000
+      #表示是否开启空闲连接回收器,连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,则连接将被从池中去除
+      testWhileIdle: true
+      # 表示空闲连接回收器，每隔多长时间(毫秒)检查一次连接池中空闲的连接,把空闲时间超过minEvictableIdleTimeMillis毫秒的连接从连接池中去除,直到连接池中的连接数到minIdle为止。
+      timeBetweenEvictionRunsMillis: 10000
+      #连接池中连接可空闲的时间,单位为毫秒
+      minEvictableIdleTimeMillis: 30000
+      #在连接池返回连接给调用者前用来检测连接是否有效的sql，要求为一条查询语句
+      validationQuery: SELECT 1 FROM `role`
+      # 申请连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。
+      testOnBorrow: false
+      # 归还连接时执行validationQuery检测连接是否有效，做了这个配置会降低性能。
+      testOnReturn: false
+      # 数据库服务宕机自动重连机制，true表示不重连，false表示重连（默认为false）
+      breakAfterAcquireFailure: false
+      # 连接出错后重试时间间隔
+      timeBetweenConnectErrorMillis: 1000
+      # 是否自动回收超时连接，如果执行数据库sql语句的时长超出removeAbandonedTimeout的限制，且该属性设置为 true，则连接被认为是被泄露并且删除这个连接
+      remove-abandoned: true
+      # 泄露的连接可以被删除的超时时间（秒），该值应设置为应用程序查询可能执行的最长时间
+      remove-abandoned-timeout: 300
+  data:
+    #redis
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      #连接超时时间
+      timeout: 5000
+      #最大连接数
+      jedis:
+        pool:
+          max-active: 1024
+          #最大阻塞等待时间(负数表示没限制)
+          max-wait: 4000
+          #最大空闲
+          max-idle: 200
+          #最小空闲
+          min-idle: 10
+  mvc:
+    static-path-pattern: /static/**
+  servlet:
+    multipart:
+      #上传文件总的最大值
+      max-request-size: 300MB
+      #单个文件的最大值
+      max-file-size: 30MB
+
+#腾讯云短信设置
+appID: 1400917338
+appKey: a50129336a580e7f70bf887bc0e4f0f0
+#注册时，验证码的有效时长是3分钟
+registration:
+  verification:
+    code:
+      expiration: 180
+#minio
+minio:
+  endpoint: http://127.0.0.1:9000/
+  accessKey: admin
+  secretKey: 12345678
+  #用户头像的存储桶名称
+  userImageBucketName: user
+  #数据汇交文件的存储桶名称
+  dataRemittanceBucketName: dataremittance
+  #数据汇交文件的存储桶名称
+  dataRemittanceReviewBucketName: dataremittancereview
+  usingApplyBucketName: usingapply
+logging:
+  level:
+    root: debug
+
+
+
+
+
+

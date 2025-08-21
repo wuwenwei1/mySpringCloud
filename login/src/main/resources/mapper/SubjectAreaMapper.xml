@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.SubjectAreaMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.SubjectArea">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="subjectName" jdbcType="VARCHAR" property="subjectName" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="delFlag" jdbcType="CHAR" property="delFlag" />
+    <result column="createBy" jdbcType="BIGINT" property="createBy" />
+    <result column="createTime" jdbcType="VARCHAR" property="createTime" />
+    <result column="updateBy" jdbcType="BIGINT" property="updateBy" />
+    <result column="updateTime" jdbcType="VARCHAR" property="updateTime" />
+  </resultMap>
+
+  <select id="getSubjectAreaBox" resultType="com.alibaba.fastjson2.JSONObject">
+    SELECT id,subjectName FROM `subject_area` WHERE  `delFlag` != "1" AND `status`!= "1";
+  </select>
+
+
+
+  <select id="getSubjectAreaList" resultType="com.alibaba.fastjson2.JSONObject">
+    SELECT it.*,CASE
+    WHEN it.status='0' THEN '正常'
+    WHEN it.status='1' THEN '停用'
+    ELSE ''
+    END AS 'statusView',u1.userName AS createName,u2.userName AS updateName FROM (SELECT id,subjectName,status,createBy,createTime,updateBy,updateTime FROM `subject_area`
+    <where>
+      <if test="''!=subjectName and null!=subjectName">
+          subjectName LIKE concat('%',#{subjectName},'%')
+      </if>
+      <if test="''!=status and null!=status">
+        and status=#{status}
+      </if>
+      <if test="1==1">
+        and delFlag != "1"
+      </if>
+    </where> LIMIT ${starIndex}, ${pageSize}) it INNER JOIN `user` u1 ON it.createBy=u1.userId INNER JOIN `user` u2 ON it.updateBy=u2.userId ORDER BY it.updateTime desc;
+  </select>
+
+
+  <update id="updateSubjectAreaStatusById">
+    UPDATE `subject_area` SET `status` = #{status},
+                               `updateBy`=#{userId},
+                               `updateTime` = #{todayAllStr} WHERE `id` = ${id};
+  </update>
+
+  <update id="delSubjectAreaById">
+    UPDATE `subject_area` SET `status` = '1',
+                               `delFlag` = '1',
+                               `updateBy`=#{userId},
+                               `updateTime` = #{todayAllStr} WHERE `id` = ${id};
+  </update>
+
+
+
+  <update id="updateSubjectNameById">
+    UPDATE `subject_area` SET `subjectName` = #{subjectName},
+                               `createBy` = ${userId},
+                               `updateTime` = #{todayAllStr} WHERE `id` = ${id};
+  </update>
+
+
+  <insert id="addSubjectArea">
+    INSERT INTO `subject_area`(`subjectName`,
+                                `status`,
+                                `delFlag`,
+                                `createBy`,
+                                `createTime`,
+                                `updateBy`,
+                                `updateTime`) VALUES (
+                                                       #{subjectArea.subjectName},
+                                                       #{subjectArea.status},
+                                                       #{subjectArea.delFlag},
+                                                       ${subjectArea.createBy},
+                                                       #{subjectArea.createTime},
+                                                       ${subjectArea.updateBy},
+                                                       #{subjectArea.updateTime});
+  </insert>
+</mapper>

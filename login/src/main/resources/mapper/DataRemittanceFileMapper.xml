@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.DataRemittanceFileMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.DataRemittanceFile">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="remittanceId" jdbcType="BIGINT" property="remittanceId" />
+    <result column="remittanceFileName" jdbcType="VARCHAR" property="remittanceFileName" />
+    <result column="remittanceFileUrl" jdbcType="VARCHAR" property="remittanceFileUrl" />
+  </resultMap>
+
+  <select id="getDataRemittanceFileListByRemittanceId" resultMap="BaseResultMap">
+    SELECT * FROM `data_remittance_file` WHERE remittanceId=${remittanceId};
+  </select>
+
+
+
+  <update id="updateDataRemittanceFileById">
+    UPDATE `data_remittance_file` SET `remittanceId` = ${dataRemittanceFile.remittanceId},
+                                  `remittanceFileName`=#{dataRemittanceFile.remittanceFileName},
+                                  `remittanceFileUrl`=#{dataRemittanceFile.remittanceFileUrl}
+    WHERE `id` = ${dataRemittanceFile.id};
+  </update>
+
+    <delete id="delByIdAndRemittanceId">
+        DELETE FROM `data_remittance_file` WHERE remittanceId=${remittanceId} AND id &lt;= ${id};
+    </delete>
+
+    <select id="getMaxIdByRemittanceId" resultType="java.lang.Long">
+        SELECT MAX(id) FROM `data_remittance_file` WHERE remittanceId=${remittanceId};
+    </select>
+
+  <insert id="addDataRemittanceFile" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO `data_remittance_file`(`remittanceId`) VALUES (${dataRemittanceFile.remittanceId});
+  </insert>
+</mapper>

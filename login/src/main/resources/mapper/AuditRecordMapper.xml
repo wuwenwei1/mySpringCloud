@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.AuditRecordMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.AuditRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="reviewId" jdbcType="BIGINT" property="reviewId" />
+    <result column="createTime" jdbcType="VARCHAR" property="createTime" />
+    <result column="reviewBy" jdbcType="BIGINT" property="reviewBy" />
+    <result column="reviewIdea" jdbcType="VARCHAR" property="reviewIdea" />
+  </resultMap>
+
+  <delete id="delReviewsIdeaById">
+     DELETE FROM `audit_record` WHERE id=${id};
+  </delete>
+
+  <insert id="addAuditRecord" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO `audit_record`(`reviewId`,
+                               `createTime`,
+                               `reviewBy`,
+                               `reviewIdea`) VALUES (${auditRecord.reviewId},
+                                                     #{auditRecord.createTime},
+                                                     ${auditRecord.reviewBy},
+                                                     #{auditRecord.reviewIdea});
+  </insert>
+
+
+  <select id="getAuditRecordList" resultType="com.alibaba.fastjson2.JSONObject">
+      SELECT ar.id,ar.reviewIdea,ar.createTime,u.userName FROM (SELECT DISTINCT id AS reviewId FROM data_remittance_review WHERE remittanceId=${id}) drr INNER JOIN audit_record ar ON drr.reviewId=ar.reviewId LEFT JOIN `user` u ON ar.reviewBy=u.userId ORDER BY ar.createTime DESC;  </select>
+</mapper>

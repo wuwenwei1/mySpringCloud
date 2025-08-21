@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.UsingApplyFileMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.UsingApplyFile">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="usingApplyId" jdbcType="BIGINT" property="usingApplyId" />
+    <result column="usingApplyFileName" jdbcType="VARCHAR" property="usingApplyFileName" />
+    <result column="usingApplyFileUrl" jdbcType="VARCHAR" property="usingApplyFileUrl" />
+  </resultMap>
+
+
+  <select id="getUsingApplyFileListByUsingApplyId" resultMap="BaseResultMap">
+    SELECT * FROM `using_apply_file` WHERE usingApplyId=${usingApplyId};
+  </select>
+
+
+
+  <insert id="addUsingApplyFile" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO `using_apply_file`(`usingApplyId`) VALUES (${usingApplyFile.usingApplyId});
+  </insert>
+
+  <update id="updateUsingApplyFileById">
+    UPDATE `using_apply_file` SET `usingApplyId` = ${usingApplyFile.usingApplyId},
+                                        `usingApplyFileName`=#{usingApplyFile.usingApplyFileName},
+                                        `usingApplyFileUrl`=#{usingApplyFile.usingApplyFileUrl}
+    WHERE `id` = ${usingApplyFile.id};
+  </update>
+</mapper>

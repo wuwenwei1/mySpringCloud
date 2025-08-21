@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.DataRemittanceReviewMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.DataRemittanceReview">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="remittanceId" jdbcType="BIGINT" property="remittanceId" />
+    <result column="dataName" jdbcType="VARCHAR" property="dataName" />
+    <result column="industryTypeId" jdbcType="BIGINT" property="industryTypeId" />
+    <result column="subjectAreaId" jdbcType="BIGINT" property="subjectAreaId" />
+    <result column="dataOpenTypeId" jdbcType="BIGINT" property="dataOpenTypeId" />
+    <result column="reviewTypeId" jdbcType="BIGINT" property="reviewTypeId" />
+    <result column="createBy" jdbcType="BIGINT" property="createBy" />
+    <result column="createTime" jdbcType="VARCHAR" property="createTime" />
+    <result column="updateBy" jdbcType="BIGINT" property="updateBy" />
+    <result column="updateTime" jdbcType="VARCHAR" property="updateTime" />
+    <result column="dataType" jdbcType="VARCHAR" property="dataType" />
+    <result column="dataFormat" jdbcType="VARCHAR" property="dataFormat" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="remittanceType" jdbcType="VARCHAR" property="remittanceType" />
+
+  </resultMap>
+
+
+
+
+
+    <update id="updateReviewTypeIdById">
+        UPDATE `data_remittance_review` SET `reviewTypeId` = ${reviewTypeId} WHERE `id` = ${id};
+    </update>
+
+    <select id="getDataRemittanceReviewById" resultType="com.alibaba.fastjson2.JSONObject">
+        SELECT drr.*,it.industryName,sa.subjectName,dot.dataOpenTypeName,rt.reviewName,CASE
+                                                                                           WHEN drr.remittanceType=0 THEN '新增'
+                                                                                           WHEN drr.remittanceType=1 THEN '更新'
+                                                                                           WHEN drr.remittanceType=2 THEN '重提'
+                                                                                           ELSE ''
+            END AS 'remittanceTypeName' FROM (SELECT * FROM `data_remittance_review` WHERE id=${id}) drr LEFT JOIN industry_type it ON drr.industryTypeId=it.id LEFT JOIN subject_area sa ON drr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON drr.dataOpenTypeId=dot.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id;
+</select>
+
+
+    <select id="getDataRemittanceReviewId" resultMap="BaseResultMap">
+        SELECT * FROM `data_remittance_review` WHERE id=${id} lock in share mode;
+    </select>
+
+    <select id="getDataRemittanceReviewHisTotalByRemittanceId" resultType="java.lang.Long">
+        SELECT COUNT(id) FROM `data_remittance_review` WHERE remittanceId=${remittanceId};
+    </select>
+  <select id="getDataRemittanceReviewHisByRemittanceId" resultType="com.alibaba.fastjson2.JSONObject">
+      SELECT SUBSTRING(drr.createTime, 1, 10) AS createTime,rt.reviewName, CASE
+                                                                               WHEN drr.remittanceType='0' THEN '新增'
+                                                                               WHEN drr.remittanceType='1' THEN '更新'
+                                                                               WHEN drr.remittanceType='2' THEN '重提'
+                                                                               ELSE ''
+          END AS 'remittanceType' FROM (SELECT DISTINCT reviewId FROM remittance_vs_review WHERE remittanceId=${remittanceId}) rvr LEFT JOIN data_remittance_review drr ON rvr.reviewId=drr.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id ORDER BY drr.createTime LIMIT ${newStarSize},${pageSize};
+  </select>
+
+  <insert id="addDataRemittanceReview" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO `data_remittance_review`(`remittanceId`,
+                                  `dataName`,
+                                  `industryTypeId`,
+                                  `subjectAreaId`,
+                                  `dataOpenTypeId`,
+                                  `reviewTypeId`,
+                                  `createBy`,
+                                  `createTime`,
+                                  `updateBy`,
+                                  `updateTime`,
+                                  `dataType`,
+                                  `dataFormat`,
+                                  `remark`,
+                                  `remittanceType`) VALUES ( ${dataRemittanceReview.remittanceId},
+                                                         #{dataRemittanceReview.dataName},
+                                                         ${dataRemittanceReview.industryTypeId},
+                                                         ${dataRemittanceReview.subjectAreaId},
+                                                         ${dataRemittanceReview.dataOpenTypeId},
+                                                         ${dataRemittanceReview.reviewTypeId},
+                                                         ${dataRemittanceReview.createBy},
+                                                         #{dataRemittanceReview.createTime},
+                                                         ${dataRemittanceReview.updateBy},
+                                                         #{dataRemittanceReview.updateTime},
+                                                         #{dataRemittanceReview.dataType},
+                                                         #{dataRemittanceReview.dataFormat},
+                                                         #{dataRemittanceReview.remark},
+                                                         #{dataRemittanceReview.remittanceType});
+  </insert>
+
+</mapper>

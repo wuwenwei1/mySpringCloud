@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.MenuMapper">
+    <resultMap id="BaseResultMap" type="org.demo.security.entity.Menu">
+        <id column="menuId" jdbcType="BIGINT" property="menuId"/>
+        <result column="menuName" jdbcType="VARCHAR" property="menuName"/>
+        <result column="parentId" jdbcType="BIGINT" property="parentId"/>
+        <result column="orderNum" jdbcType="INTEGER" property="orderNum"/>
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="isFrame" jdbcType="INTEGER" property="isFrame"/>
+        <result column="menuType" jdbcType="CHAR" property="menuType"/>
+        <result column="visible" jdbcType="CHAR" property="visible"/>
+        <result column="status" jdbcType="CHAR" property="status"/>
+        <result column="perms" jdbcType="VARCHAR" property="perms"/>
+        <result column="icon" jdbcType="VARCHAR" property="icon"/>
+        <result column="createBy" jdbcType="BIGINT" property="createBy"/>
+        <result column="createTime" jdbcType="VARCHAR" property="createTime"/>
+        <result column="updateBy" jdbcType="BIGINT" property="updateBy"/>
+        <result column="updateTime" jdbcType="VARCHAR" property="updateTime"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+    </resultMap>
+    <delete id="delMenuByMenuId">
+        DELETE  FROM menu WHERE menuId=${menuId};
+    </delete>
+
+    <select id="getHasProgenyByMenuId" resultType="java.lang.Boolean">
+        WITH RECURSIVE target_data AS (
+            SELECT menuId FROM menu WHERE menuId = ${menuId}
+            UNION ALL
+            SELECT m.menuId FROM menu m INNER JOIN target_data td ON td.menuId=m.parentId
+        )
+        SELECT CASE WHEN COUNT(menuId) > 0 THEN 1 ELSE 0 END AS 'hasProgeny'  FROM target_data WHERE menuId!=${menuId}  ORDER BY menuId;
+    </select>
+
+    <update id="increaseMenuOrderNumByParentId2">
+        UPDATE `menu`
+        SET `orderNum` = orderNum + 1
+        WHERE `parentId` = ${parentId}
+          and orderNum &gt;= ${newOrderNum}
+          and orderNum &lt; ${tarOrderNum};
+    </update>
+
+    <select id="getMenuByParentIdAndOrderNum" resultMap="BaseResultMap">
+        SELECT *
+        FROM menu
+        WHERE parentId = ${parentId}
+          and orderNum = ${orderNum};
+    </select>
+
+
+    <update id="updateMenu" parameterType="org.demo.security.entity.Menu">
+        UPDATE `menu` SET `menuName` = #{menuName},
+                          `parentId` = ${parentId},
+                          `orderNum` = ${orderNum},
+                          `path` = #{path},
+                          `isFrame` = ${isFrame},
+                          `menuType` = #{menuType},
+                          `visible` = #{visible},
+                          `status` = #{status},
+                          `perms` = #{perms},
+                          `icon` = #{icon},
+                          `updateBy` = ${updateBy},
+                          `updateTime` = #{updateTime},
+                          `remark` = #{remark} WHERE `menuId` = ${menuId};
+    </update>
+
+    <insert id="addMenu" parameterType="org.demo.security.entity.Menu">
+        INSERT INTO `menu`(`menuName`,
+                           `parentId`,
+                           `orderNum`,
+                           `path`,
+                           `isFrame`,
+                           `menuType`,
+                           `visible`,
+                           `status`,
+                           `perms`,
+                           `icon`,
+                           `createBy`,
+                           `createTime`,
+                           `updateBy`,
+                           `updateTime`,
+                           `remark`)
+        VALUES (#{menuName},
+                ${parentId},
+                ${orderNum},
+                #{path},
+                ${isFrame},
+                #{menuType},
+                #{visible},
+                #{status},
+                #{perms},
+                #{icon},
+                ${createBy},
+                #{createTime},
+                ${updateBy},
+                #{updateTime},
+                #{remark});
+    </insert>
+
+
+    <update id="increaseMenuOrderNumByParentId">
+        UPDATE `menu`
+        SET `orderNum` = orderNum + 1
+        WHERE `parentId` = ${parentId}
+          and orderNum &gt;= ${orderNum};
+    </update>
+
+    <select id="getMenuByPerms" resultMap="BaseResultMap">
+        SELECT *
+        FROM menu
+        WHERE perms = #{perms};
+    </select>
+
+
+    <select id="getMenuByParentIdAndMenuName" resultMap="BaseResultMap">
+        SELECT *
+        FROM menu
+        WHERE parentId = ${parentId}
+          and menuName = #{menuName};
+    </select>
+
+    <select id="getMenuByPermsAndMenuId" resultMap="BaseResultMap">
+        SELECT *
+        FROM menu
+        WHERE perms = #{perms}
+          and menuId!=${menuId};
+    </select>
+
+    <select id="getMenuByParentIdAndMenuNameAndMenuId" resultMap="BaseResultMap">
+        SELECT *
+        FROM menu
+        WHERE parentId = ${parentId}
+          and menuName = #{menuName}
+          and menuId!=${menuId};
+    </select>
+
+    <select id="getMenuByMuenId" resultMap="BaseResultMap">
+        SELECT *
+        FROM menu
+        WHERE menuId = ${id};
+    </select>
+
+</mapper>

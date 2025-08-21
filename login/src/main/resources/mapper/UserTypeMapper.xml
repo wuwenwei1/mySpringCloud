@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.UserTypeMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.UserType">
+    <id column="userTypeId" jdbcType="BIGINT" property="userTypeId" />
+    <result column="parentId" jdbcType="BIGINT" property="parentId" />
+    <result column="userTypeName" jdbcType="VARCHAR" property="userTypeName" />
+    <result column="orderNum" jdbcType="INTEGER" property="orderNum" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="delFlag" jdbcType="CHAR" property="delFlag" />
+    <result column="createBy" jdbcType="BIGINT" property="createBy" />
+    <result column="createTime" jdbcType="VARCHAR" property="createTime" />
+    <result column="updateBy" jdbcType="BIGINT" property="updateBy" />
+    <result column="updateTime" jdbcType="VARCHAR" property="updateTime" />
+  </resultMap>
+    <update id="updateUserType" parameterType="org.demo.security.entity.UserType">
+        UPDATE `user_type` SET `parentId` = ${parentId},
+                          `userTypeName` = #{userTypeName},
+                          `orderNum` = ${orderNum},
+                          `status` = #{status},
+                          `updateBy` = ${updateBy},
+                          `updateTime` = #{updateTime} WHERE `userTypeId` = ${userTypeId};
+    </update>
+
+    <insert id="addUserType" parameterType="org.demo.security.entity.UserType">
+        INSERT INTO `user_type`(`parentId`,
+                                `userTypeName`,
+                                `orderNum`,
+                                `status`,
+                                `delFlag`,
+                                `createBy`,
+                                `createTime`,
+                                `updateTime`)
+        VALUES (${parentId},
+                #{userTypeName},
+                ${orderNum},
+                #{status},
+                ${delFlag},
+                ${createBy},
+                #{createTime},
+                #{updateTime});
+    </insert>
+
+    <select id="getHasProgenyByUserTypeId" resultType="java.lang.Boolean">
+        WITH RECURSIVE target_data AS (
+            SELECT userTypeId,delFlag,status FROM user_type WHERE  userTypeId= ${userTypeId}
+            UNION ALL
+            SELECT u.userTypeId,u.delFlag,u.status FROM user_type u INNER JOIN target_data td ON td.userTypeId=u.parentId
+        )
+        SELECT CASE WHEN COUNT(userTypeId) > 0 THEN 1 ELSE 0 END AS 'hasProgeny'  FROM target_data WHERE userTypeId!=${userTypeId} AND delFlag='0' AND status='0';
+    </select>
+
+    <update id="delUserTypeByUserTypeId">
+        UPDATE `user_type`
+        SET `delFlag` = '1'
+        WHERE `userTypeId` = ${userTypeId};
+    </update>
+
+    <select id="getUserTypeByUserTypeId" resultMap="BaseResultMap">
+        SELECT * FROM `user_type` WHERE userTypeId=${userTypeId};
+    </select>
+
+    <select id="getUserTypeByParentIdAndOrderNum" resultMap="BaseResultMap">
+        SELECT *
+        FROM user_type
+        WHERE parentId = ${parentId}
+          and orderNum = ${orderNum};
+    </select>
+
+    <update id="increaseUserTypeOrderNumByParentId">
+        UPDATE `user_type`
+        SET `orderNum` = orderNum + 1
+        WHERE `parentId` = ${parentId}
+          and orderNum &gt;= ${orderNum};
+    </update>
+
+    <update id="increaseMenuOrderNumByParentId2">
+        UPDATE `user_type`
+        SET `orderNum` = orderNum + 1
+        WHERE `parentId` = ${parentId}
+          and orderNum &gt;= ${newOrderNum}
+          and orderNum &lt; ${tarOrderNum};
+    </update>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

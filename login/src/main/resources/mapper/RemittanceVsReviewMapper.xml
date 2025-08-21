@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.RemittanceVsReviewMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.RemittanceVsReview">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="remittanceId" jdbcType="BIGINT" property="remittanceId" />
+    <result column="reviewId" jdbcType="BIGINT" property="reviewId" />
+  </resultMap>
+  <select id="getDataRemittanceReviewByRemittanceId" resultType="com.alibaba.fastjson2.JSONObject">
+    SELECT drrrvr.*,it.industryName,sa.subjectName,dot.dataOpenTypeName,rt.reviewName,CASE
+                                                                                        WHEN drrrvr.remittanceType=0 THEN '新增'
+                                                                                        WHEN drrrvr.remittanceType=1 THEN '更新'
+                                                                                        WHEN drrrvr.remittanceType=2 THEN '重提'
+                                                                                        ELSE ''
+      END AS 'remittanceTypeName' FROM (SELECT drr.* FROM (SELECT reviewId FROM remittance_vs_review WHERE remittanceId=${remittanceId}) rvr INNER JOIN data_remittance_review drr ON drr.id=rvr.reviewId) drrrvr LEFT JOIN industry_type it ON drrrvr.industryTypeId=it.id LEFT JOIN subject_area sa ON drrrvr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON drrrvr.dataOpenTypeId=dot.id LEFT JOIN review_type rt ON drrrvr.reviewTypeId=rt.id;
+  </select>
+
+  <update id="updateRemittanceVsReviewByRemittanceId">
+    UPDATE `remittance_vs_review` SET `reviewId` = ${reviewId} WHERE `remittanceId` = ${remittanceId};
+  </update>
+
+    <select id="getDataRemittanceReviewDataByRemittanceId" resultType="com.alibaba.fastjson2.JSONObject">
+      SELECT ar.*,u.userName AS reviewUserName,u.userImage FROM (SELECT reviewId FROM remittance_vs_review WHERE remittanceId=${remittanceId}) rvr INNER JOIN review_audit_record rar ON rvr.reviewId=rvr.reviewId INNER JOIN audit_record ar ON rar.auditRecordId=ar.id INNER JOIN `user` u ON ar.reviewBy=u.userId;
+    </select>
+
+  <insert id="addRemittanceVsReview">
+    INSERT INTO `remittance_vs_review`(`remittanceId`,
+                                       `reviewId`) VALUES (#{remittanceVsReview.remittanceId},
+                                                           ${remittanceVsReview.reviewId});
+  </insert>
+</mapper>

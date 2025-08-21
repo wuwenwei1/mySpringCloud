@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.UserMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.User">
+    <id column="userId" jdbcType="BIGINT" property="userId" />
+    <result column="userName" jdbcType="VARCHAR" property="userName" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="createBy" jdbcType="BIGINT" property="createBy" />
+    <result column="createTime" jdbcType="VARCHAR" property="createTime" />
+    <result column="updateBy" jdbcType="BIGINT" property="updateBy" />
+    <result column="updateTime" jdbcType="VARCHAR" property="updateTime" />
+    <result column="userImage" jdbcType="VARCHAR" property="userImage" />
+    <result column="loginDate" jdbcType="VARCHAR" property="loginDate" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="delFlag" jdbcType="VARCHAR" property="delFlag" />
+    <result column="userTypeId" jdbcType="BIGINT" property="userTypeId" />
+  </resultMap>
+
+    <select id="getHasUserBindingByUserTypeId" resultType="java.lang.Boolean">
+        SELECT CASE WHEN COUNT(userId) > 0 THEN 1 ELSE 0 END AS 'hasBinding'  FROM user WHERE userTypeId=${userTypeId} and delFlag!='1';
+    </select>
+
+
+    <select id="getUserByUserId" resultMap="BaseResultMap">
+        SELECT * from `user` where userId=${userId}
+    </select>
+
+    <update id="updateCreateByByUserId">
+        UPDATE `user` SET `createBy` = ${userId} WHERE `userId` = ${userId};
+    </update>
+
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO `user`(`userName`,
+                           `phone`,
+                           `password`,
+                           `createTime`,
+                           `updateTime`,
+                           `userImage`,
+                           `loginDate`,
+                           `status`,
+                           `delFlag`,
+                           `userTypeId`) VALUES ( #{user.userName},
+                                                #{user.phone},
+                                                #{user.password},
+                                                #{user.createTime},
+                                                #{user.updateTime},
+                                                #{user.userImage},
+                                                #{user.loginDate},
+                                                #{user.status},
+                                                #{user.delFlag},
+                                                ${user.userTypeId});
+    </insert>
+
+    <update id="updateLoginDateById">
+        UPDATE `user` SET `loginDate` = #{loginDate} WHERE `userId` = #{userId};
+    </update>
+
+    <select id="getUserByUserName" resultMap="BaseResultMap">
+        SELECT * from `user` where userName=#{userName}
+    </select>
+
+    <select id="getUserByPhone" resultMap="BaseResultMap">
+        SELECT * from `user` where phone=#{phone}
+    </select>
+
+
+
+
+
+
+
+
+
+
+    <update id="updateUserImageById">
+        UPDATE `user` SET `userImage` = #{newImagePath} WHERE `userId` = ${userId};
+    </update>
+
+    <update id="updatePwdByPhone">
+        UPDATE `user` SET `password` = #{newPwd} WHERE `phone` = #{phone};
+    </update>
+
+
+
+
+
+
+
+
+</mapper>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.UsingApplyMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.UsingApply">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="remittanceId" jdbcType="BIGINT" property="remittanceId" />
+    <result column="applyBy" jdbcType="BIGINT" property="applyBy" />
+    <result column="applyTime" jdbcType="VARCHAR" property="applyTime" />
+    <result column="contactNumber" jdbcType="VARCHAR" property="contactNumber" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="usageScenarios" jdbcType="VARCHAR" property="usageScenarios" />
+    <result column="contactAddress" jdbcType="VARCHAR" property="contactAddress" />
+    <result column="reviewTypeId" jdbcType="BIGINT" property="reviewTypeId" />
+    <result column="reviewBy" jdbcType="BIGINT" property="reviewBy" />
+    <result column="reviewTime" jdbcType="VARCHAR" property="reviewTime" />
+    <result column="reviewIdea" jdbcType="VARCHAR" property="reviewIdea" />
+  </resultMap>
+    <update id="usingApplyReview">
+        UPDATE `using_apply` SET `reviewTypeId` = ${usingApply.reviewTypeId},
+                                 `reviewBy` = ${usingApply.reviewBy},
+                                 `reviewTime` = #{usingApply.reviewTime},
+                                 `reviewIdea` = #{usingApply.reviewIdea}
+                             WHERE `id` = ${usingApply.id};
+    </update>
+
+
+    <select id="getUsingApplyReviewDataById" resultType="com.alibaba.fastjson2.JSONObject">
+        SELECT ua.*,u.userName  as "reviewUserName",u.userImage FROM (SELECT reviewBy,reviewTime,reviewIdea FROM `using_apply` WHERE id=${id})ua LEFT JOIN user u ON ua.reviewBy=u.userId;
+    </select>
+
+    <select id="getUsingApplyById" resultMap="BaseResultMap">
+        SELECT * FROM `using_apply` WHERE id=${id} lock in share mode;;
+    </select>
+
+
+  <insert id="addUsingApply" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO `using_apply`(`remittanceId`,
+                                  `applyBy`,
+                                  `applyTime`,
+                                  `contactNumber`,
+                                  `email`,
+                                  `usageScenarios`,
+                                  `contactAddress`,
+                                  `reviewTypeId`) VALUES ( ${usingApply.remittanceId},
+                                                           ${usingApply.applyBy},
+                                                           #{usingApply.applyTime},
+                                                           #{usingApply.contactNumber},
+                                                           #{usingApply.email},
+                                                           #{usingApply.usageScenarios},
+                                                           #{usingApply.contactAddress},
+                                                           ${usingApply.reviewTypeId});
+  </insert>
+</mapper>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.ReviewAuditRecordMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.ReviewAuditRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="reviewId" jdbcType="BIGINT" property="reviewId" />
+    <result column="auditRecordId" jdbcType="BIGINT" property="auditRecordId" />
+  </resultMap>
+
+
+
+  <select id="getDataRemittanceReviewDataByReviewId" resultType="com.alibaba.fastjson2.JSONObject">
+    SELECT ar.*,u.userName AS reviewUserName,u.userImage FROM (SELECT auditRecordId FROM review_audit_record WHERE reviewId=${reviewId}) rar  INNER JOIN audit_record ar ON rar.auditRecordId=ar.id INNER JOIN `user` u ON ar.reviewBy=u.userId;
+  </select>
+
+  <update id="updateAuditRecordIdByReviewId">
+    UPDATE `review_audit_record` SET `auditRecordId` = ${auditRecordId} WHERE `reviewId` = ${reviewId};
+  </update>
+
+  <insert id="addReviewAuditRecord">
+    INSERT INTO `review_audit_record` (`reviewId`) VALUES (#{reviewAuditRecord.reviewId});
+  </insert>
+</mapper>

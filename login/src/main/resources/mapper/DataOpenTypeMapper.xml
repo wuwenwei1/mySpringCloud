@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.DataOpenTypeMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.DataOpenType">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="dataOpenTypeName" jdbcType="VARCHAR" property="dataOpenTypeName" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="delFlag" jdbcType="CHAR" property="delFlag" />
+    <result column="createBy" jdbcType="BIGINT" property="createBy" />
+    <result column="createTime" jdbcType="VARCHAR" property="createTime" />
+    <result column="updateBy" jdbcType="BIGINT" property="updateBy" />
+    <result column="updateTime" jdbcType="VARCHAR" property="updateTime" />
+  </resultMap>
+
+  <select id="getDataOpenTypeBox" resultType="com.alibaba.fastjson2.JSONObject">
+    SELECT id,dataOpenTypeName FROM `data_open_type` WHERE  `delFlag` != "1" AND `status`!= "1";
+  </select>
+</mapper>

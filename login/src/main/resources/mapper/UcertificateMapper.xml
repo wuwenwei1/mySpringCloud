@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.UcertificateMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.Ucertificate">
+    <id column="uCertificateId" jdbcType="BIGINT" property="uCertificateId" />
+    <result column="userId" jdbcType="BIGINT" property="userId" />
+    <result column="certificateId" jdbcType="BIGINT" property="certificateId" />
+  </resultMap>
+  <insert id="addUcertificate">
+    INSERT INTO `ucertificate`(`userId`,
+                       `certificateId`) VALUES (${ucertificate.userId},
+                                             ${ucertificate.certificateId});
+  </insert>
+</mapper>

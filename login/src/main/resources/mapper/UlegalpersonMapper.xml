@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.demo.security.dao.UlegalPersonMapper">
+  <resultMap id="BaseResultMap" type="org.demo.security.entity.UlegalPerson">
+    <id column="ulegalPersonId" jdbcType="BIGINT" property="ulegalPersonId" />
+    <result column="userId" jdbcType="BIGINT" property="userId" />
+    <result column="legalPersonId" jdbcType="BIGINT" property="legalPersonId" />
+  </resultMap>
+
+  <insert id="addUlegalPerson" >
+    INSERT INTO `ulegalperson`(`userId`,
+                              `legalPersonId`) VALUES ( ${ulegalPerson.userId},
+                                                     ${ulegalPerson.legalPersonId});
+  </insert>
+</mapper>
