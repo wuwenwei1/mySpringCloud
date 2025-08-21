@@ -17,11 +17,90 @@
     <result column="dataFormat" jdbcType="VARCHAR" property="dataFormat" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="remittanceType" jdbcType="VARCHAR" property="remittanceType" />
-
   </resultMap>
 
 
 
+    <select id="getDataRemittanceReviewList" resultType="com.alibaba.fastjson2.JSONObject">
+        SELECT drr.id,drr.dataName,drr.industryTypeId,drr.subjectAreaId,drr.dataOpenTypeId,drr.reviewTypeId,u1.userName AS submitName,drr.createTime,it.industryName,sa.subjectName,dot.dataOpenTypeName,rt.reviewName AS reviewStatus,CAST(drr.remittanceType AS SIGNED) AS remittanceType,CASE
+                                                                                                                                                                                                                                                                                                WHEN drr.remittanceType='0' THEN '新增'
+                                                                                                                                                                                                                                                                                                WHEN drr.remittanceType='1' THEN '更新'
+                                                                                                                                                                                                                                                                                                WHEN drr.remittanceType='2' THEN '重提'
+                                                                                                                                                                                                                                                                                                ELSE ''
+            END AS 'remittanceTypeView',u2.userName AS reviewName FROM `data_remittance_review` drr LEFT JOIN industry_type it ON drr.industryTypeId=it.id LEFT JOIN subject_area sa ON drr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON drr.dataOpenTypeId=dot.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id LEFT JOIN `user` u1 ON drr.createBy=u1.userId LEFT JOIN review_audit_record rar ON drr.id=rar.reviewId LEFT JOIN audit_record ar ON rar.auditRecordId=ar.id LEFT JOIN `user` u2 ON ar.reviewBy=u2.userId
+        <where>
+            <if test="''!=dataName and null!=dataName">
+                dataName LIKE concat('%',#{dataName},'%')
+            </if>
+            <if test="''!=industryTypeId and null!=industryTypeId">
+                and industryTypeId=${industryTypeId}
+            </if>
+            <if test="''!=subjectAreaId and null!=subjectAreaId">
+                and subjectAreaId=${subjectAreaId}
+            </if>
+            <if test="''!=dataOpenTypeId and null!=dataOpenTypeId">
+                and dataOpenTypeId=${dataOpenTypeId}
+            </if>
+            <if test="''!=reviewTypeId and null!=reviewTypeId">
+                and reviewTypeId=${reviewTypeId}
+            </if>
+            <if test="''!=remittanceType and null!=remittanceType">
+                and remittanceType=${remittanceType}
+            </if>
+
+            <if test="''!=submitName and null!=submitName">
+                submitName LIKE concat('%',#{submitName},'%')
+            </if>
+            <if test="''!=reviewName and null!=reviewName">
+                reviewName LIKE concat('%',#{reviewName},'%')
+            </if>
+            <if test="''!=createStartTime and null!=createStartTime">
+                and createTime &gt;= #{createStartTime}
+            </if>
+            <if test="''!=createEndTime and null!=createEndTime">
+                and createTime &lt;= #{createEndTime}
+            </if>
+        </where>LIMIT ${starIndex}, ${pageSize};
+    </select>
+
+
+
+    <select id="getDataRemittanceReviewTotal" resultType="java.lang.Long">
+        SELECT COUNT(drr.id) FROM `data_remittance_review` drr LEFT JOIN industry_type it ON drr.industryTypeId=it.id LEFT JOIN subject_area sa ON drr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON drr.dataOpenTypeId=dot.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id LEFT JOIN `user` u1 ON drr.createBy=u1.userId LEFT JOIN review_audit_record rar ON drr.id=rar.reviewId LEFT JOIN audit_record ar ON rar.auditRecordId=ar.id LEFT JOIN `user` u2 ON ar.reviewBy=u2.userId
+        <where>
+            <if test="''!=dataName and null!=dataName">
+                dataName LIKE concat('%',#{dataName},'%')
+            </if>
+            <if test="''!=industryTypeId and null!=industryTypeId">
+                and industryTypeId=${industryTypeId}
+            </if>
+            <if test="''!=subjectAreaId and null!=subjectAreaId">
+                and subjectAreaId=${subjectAreaId}
+            </if>
+            <if test="''!=dataOpenTypeId and null!=dataOpenTypeId">
+                and dataOpenTypeId=${dataOpenTypeId}
+            </if>
+            <if test="''!=reviewTypeId and null!=reviewTypeId">
+                and reviewTypeId=${reviewTypeId}
+            </if>
+            <if test="''!=remittanceType and null!=remittanceType">
+                and remittanceType=${remittanceType}
+            </if>
+
+            <if test="''!=submitName and null!=submitName">
+                submitName LIKE concat('%',#{submitName},'%')
+            </if>
+            <if test="''!=reviewName and null!=reviewName">
+                reviewName LIKE concat('%',#{reviewName},'%')
+            </if>
+            <if test="''!=createStartTime and null!=createStartTime">
+                and createTime &gt;= #{createStartTime}
+            </if>
+            <if test="''!=createEndTime and null!=createEndTime">
+                and createTime &lt;= #{createEndTime}
+            </if>
+        </where>
+    </select>
 
 
     <update id="updateReviewTypeIdById">

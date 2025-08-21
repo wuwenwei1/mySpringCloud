@@ -33,6 +33,33 @@ public class DataRemittanceReviewServiceExteriorImpl implements DataRemittanceRe
     private RemittanceVsReviewMapper remittanceVsReviewMapper;
 
     /**
+     * 汇交数据审核管理列表
+     * @param dataName
+     * @param industryTypeId
+     * @param subjectAreaId
+     * @param dataOpenTypeId
+     * @param submitName
+     * @param reviewTypeId
+     * @param remittanceType
+     * @param reviewName
+     * @param createStartTime
+     * @param createEndTime
+     * @param starIndex
+     * @param pageSize
+     * @return
+     */
+    @Transactional
+    @Override
+    public Result getDataRemittanceReviewList(String dataName, Long industryTypeId, Long subjectAreaId, Long dataOpenTypeId, String submitName, Long reviewTypeId, Long remittanceType, String reviewName, String createStartTime, String createEndTime, Integer starIndex, Integer pageSize) {
+        List<JSONObject> dataRemittanceReviewList=dataRemittanceReviewMapper.getDataRemittanceReviewList(dataName,industryTypeId,subjectAreaId,dataOpenTypeId,submitName,reviewTypeId,remittanceType,reviewName,createStartTime,createEndTime,starIndex,pageSize);
+        Long total=dataRemittanceReviewMapper.getDataRemittanceReviewTotal(dataName,industryTypeId,subjectAreaId,dataOpenTypeId,submitName,reviewTypeId,remittanceType,reviewName,createStartTime,createEndTime);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("data",dataRemittanceReviewList);
+        jsonObject.put("total",total);
+        return ResultBuilder.aResult().data(jsonObject).code("2000").build();
+    }
+
+    /**
      * 查看汇交数据副本的审核信息
      * @param id
      * @return
@@ -55,6 +82,8 @@ public class DataRemittanceReviewServiceExteriorImpl implements DataRemittanceRe
         JSONObject dataRemittanceReview=remittanceVsReviewMapper.getDataRemittanceReviewByRemittanceId(remittanceId);
         return ResultBuilder.aResult().code("2000").data(dataRemittanceReview).build();
     }
+
+
 
 
     /**

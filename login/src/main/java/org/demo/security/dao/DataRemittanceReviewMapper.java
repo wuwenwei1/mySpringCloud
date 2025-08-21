@@ -22,5 +22,27 @@ public interface DataRemittanceReviewMapper {
     Long getDataRemittanceReviewHisTotalByRemittanceId(@Param("remittanceId")Long remittanceId);
 
 
+    List<JSONObject> getDataRemittanceReviewList(@Param("dataName") String dataName,
+                                                 @Param("industryTypeId")Long industryTypeId,
+                                                 @Param("subjectAreaId")Long subjectAreaId,
+                                                 @Param("dataOpenTypeId")Long dataOpenTypeId,
+                                                 @Param("submitName")String submitName,
+                                                 @Param("reviewTypeId")Long reviewTypeId,
+                                                 @Param("remittanceType")Long remittanceType,
+                                                 @Param("reviewName")String reviewName,
+                                                 @Param("createStartTime")String createStartTime,
+                                                 @Param("createEndTime")String createEndTime,
+                                                 @Param("starIndex")Integer starIndex,
+                                                 @Param("pageSize")Integer pageSize);
 
+    Long getDataRemittanceReviewTotal(@Param("dataName") String dataName,
+                                      @Param("industryTypeId")Long industryTypeId,
+                                      @Param("subjectAreaId")Long subjectAreaId,
+                                      @Param("dataOpenTypeId")Long dataOpenTypeId,
+                                      @Param("submitName")String submitName,
+                                      @Param("reviewTypeId")Long reviewTypeId,
+                                      @Param("remittanceType")Long remittanceType,
+                                      @Param("reviewName")String reviewName,
+                                      @Param("createStartTime")String createStartTime,
+                                      @Param("createEndTime")String createEndTime);
 }
