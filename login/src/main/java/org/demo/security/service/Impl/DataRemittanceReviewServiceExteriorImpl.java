@@ -32,6 +32,9 @@ public class DataRemittanceReviewServiceExteriorImpl implements DataRemittanceRe
     @Autowired
     private RemittanceVsReviewMapper remittanceVsReviewMapper;
 
+
+
+
     /**
      * 汇交数据审核管理列表
      * @param dataName
@@ -40,7 +43,7 @@ public class DataRemittanceReviewServiceExteriorImpl implements DataRemittanceRe
      * @param dataOpenTypeId
      * @param submitName
      * @param reviewTypeId
-     * @param remittanceType
+     * @param remittanceTypeId
      * @param reviewName
      * @param createStartTime
      * @param createEndTime
@@ -50,14 +53,16 @@ public class DataRemittanceReviewServiceExteriorImpl implements DataRemittanceRe
      */
     @Transactional
     @Override
-    public Result getDataRemittanceReviewList(String dataName, Long industryTypeId, Long subjectAreaId, Long dataOpenTypeId, String submitName, Long reviewTypeId, Long remittanceType, String reviewName, String createStartTime, String createEndTime, Integer starIndex, Integer pageSize) {
-        List<JSONObject> dataRemittanceReviewList=dataRemittanceReviewMapper.getDataRemittanceReviewList(dataName,industryTypeId,subjectAreaId,dataOpenTypeId,submitName,reviewTypeId,remittanceType,reviewName,createStartTime,createEndTime,starIndex,pageSize);
-        Long total=dataRemittanceReviewMapper.getDataRemittanceReviewTotal(dataName,industryTypeId,subjectAreaId,dataOpenTypeId,submitName,reviewTypeId,remittanceType,reviewName,createStartTime,createEndTime);
+    public Result getDataRemittanceReviewList(String dataName, Long industryTypeId, Long subjectAreaId, Long dataOpenTypeId, String submitName, Long reviewTypeId, Long remittanceTypeId, String reviewName, String createStartTime, String createEndTime, Integer starIndex, Integer pageSize) {
+        List<JSONObject> dataRemittanceReviewList=dataRemittanceReviewMapper.getDataRemittanceReviewList(dataName,industryTypeId,subjectAreaId,dataOpenTypeId,submitName,reviewTypeId,remittanceTypeId,reviewName,createStartTime,createEndTime,starIndex,pageSize);
+        Long total=dataRemittanceReviewMapper.getDataRemittanceReviewTotal(dataName,industryTypeId,subjectAreaId,dataOpenTypeId,submitName,reviewTypeId,remittanceTypeId,reviewName,createStartTime,createEndTime);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("data",dataRemittanceReviewList);
         jsonObject.put("total",total);
         return ResultBuilder.aResult().data(jsonObject).code("2000").build();
     }
+
+
 
     /**
      * 查看汇交数据副本的审核信息

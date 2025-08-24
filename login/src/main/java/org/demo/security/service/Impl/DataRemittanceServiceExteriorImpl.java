@@ -43,6 +43,25 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
     private MinioProperties minioProperties;
 
     /**
+     * 修改数据共享
+     * @param id
+     * @param isShare
+     * @return
+     */
+    @Transactional
+    @Override
+    public Result updateShareById(Long id, Integer isShare) {
+        DataRemittance oldDataRemittance = dataRemittanceMapper.getDataRemittanceObjectById(id);
+        if(isShare!=oldDataRemittance.getIsShare()){
+            Long userId = SecurityUtils.getUserId();
+            String todayAllStr = DataConversionUtil.getTodayAllStr(new Date());
+            dataRemittanceMapper.updateIsShareById(id,isShare,userId,todayAllStr);
+        }
+        return ResultBuilder.aResult().msg("设置成功!").code("2000").build();
+    }
+
+
+    /**
      * 汇交数据管理列表
      * @param dataName
      * @param industryTypeId
@@ -65,155 +84,6 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
         jsonObject.put("total",total);
         return ResultBuilder.aResult().data(jsonObject).code("2000").build();
     }
-
-    /**
-     * 查看汇交数据的审核信息
-     * @param remittanceId
-     * @return
-     */
-    @Transactional
-    @Override
-    public Result getDataRemittanceReviewData(Long remittanceId) {
-        JSONObject reviewData=remittanceVsReviewMapper.getDataRemittanceReviewDataByRemittanceId(remittanceId);
-        return ResultBuilder.aResult().code("2000").data(reviewData).build();
-    }
-
-    /**
-     * 重新提交数据汇交
-     *
-     * @param dataName
-     * @param dataName
-     * @param dataOpenTypeId
-     * @param subjectAreaId
-     * @param industryTypeId
-     * @param dataType
-     * @param dataFormat
-     * @param remark
-     * @return
-     */
-    @Transactional
-    @Override
-    public Result afreshAddDataRemittance(Long id, String dataName, Long dataOpenTypeId, Long subjectAreaId, Long industryTypeId, String dataType, String dataFormat, String remark, List<MultipartFile> files) {
-        Long userId = SecurityUtils.getUserId();
-        DataRemittance oldDataRemittance = dataRemittanceMapper.getDataRemittanceByIdAndLockIn(id);
-        if (null == oldDataRemittance) {
-            ExceptionTool.throwException("数据不存在!", "7000");
-        } else {
-            if (2 != oldDataRemittance.getReviewTypeId()) {
-                ExceptionTool.throwException("不允许重新提交!", "7000");
-            } else {
-                String todayAllStr = DataConversionUtil.getTodayAllStr(new Date());
-                DataRemittance dataRemittance = new DataRemittance();
-                dataRemittance.setId(id);
-                dataRemittance.setDataName(dataName);
-                dataRemittance.setDataOpenTypeId(dataOpenTypeId);
-                dataRemittance.setSubjectAreaId(subjectAreaId);
-                dataRemittance.setIndustryTypeId(industryTypeId);
-                dataRemittance.setReviewTypeId(1L);
-
-                dataRemittance.setUpdateBy(userId);
-                dataRemittance.setUpdateTime(todayAllStr);
-                dataRemittance.setDataType(dataType);
-                dataRemittance.setDataFormat(dataFormat);
-                dataRemittance.setRemark(remark);
-                dataRemittanceMapper.updateDataRemittanceById(dataRemittance);
-
-                DataRemittanceReview dataRemittanceReview = new DataRemittanceReview();
-                dataRemittanceReview.setRemittanceId(id);
-                dataRemittanceReview.setDataName(dataName);
-                dataRemittanceReview.setIndustryTypeId(industryTypeId);
-                dataRemittanceReview.setSubjectAreaId(subjectAreaId);
-                dataRemittanceReview.setDataOpenTypeId(dataOpenTypeId);
-                dataRemittanceReview.setReviewTypeId(1L);
-                dataRemittanceReview.setCreateBy(oldDataRemittance.getCreateBy());
-                dataRemittanceReview.setCreateTime(oldDataRemittance.getCreateTime());
-                dataRemittanceReview.setUpdateBy(userId);
-                dataRemittanceReview.setUpdateTime(todayAllStr);
-                dataRemittanceReview.setDataType(dataType);
-                dataRemittanceReview.setDataFormat(dataFormat);
-                dataRemittanceReview.setRemark(remark);
-                dataRemittanceReview.setRemittanceType("2");
-                dataRemittanceReviewMapper.addDataRemittanceReview(dataRemittanceReview);
-
-                remittanceVsReviewMapper.updateRemittanceVsReviewByRemittanceId(dataRemittance.getId(),dataRemittanceReview.getId());
-
-                ReviewAuditRecord reviewAuditRecord=new ReviewAuditRecord();
-                reviewAuditRecord.setReviewId(dataRemittanceReview.getId());
-                reviewAuditRecordMapper.addReviewAuditRecord(reviewAuditRecord);
-
-                if (null != files && files.size() > 0) {
-                    try {
-                        // 检查指定的存储桶是否存在
-                        boolean dataRemittanceBucketNameIsBucketExists = minioclient.bucketExists(BucketExistsArgs.builder().bucket(minioProperties.getDataRemittanceBucketName()).build());
-                        if (!dataRemittanceBucketNameIsBucketExists) {// 如果存储桶不存在，则创建存储桶
-                            minioclient.makeBucket(MakeBucketArgs.builder().bucket(minioProperties.getDataRemittanceBucketName()).build());
-                            // 设置存储桶策略，允许匿名用户读取对象
-                            minioclient.setBucketPolicy(SetBucketPolicyArgs.
-                                    builder().
-                                    bucket(minioProperties.getDataRemittanceBucketName()). // 指定存储桶名称
-                                            config(createBucketPolicyConfig(minioProperties.getDataRemittanceBucketName())). // 指定存储桶策略配置
-                                            build());
-                        }
-
-                        boolean dataRemittanceReviewBucketNameIsBucketExists = minioclient.bucketExists(BucketExistsArgs.builder().bucket(minioProperties.getDataRemittanceReviewBucketName()).build());
-                        if (!dataRemittanceReviewBucketNameIsBucketExists) {// 如果存储桶不存在，则创建存储桶
-                            minioclient.makeBucket(MakeBucketArgs.builder().bucket(minioProperties.getDataRemittanceReviewBucketName()).build());
-                            // 设置存储桶策略，允许匿名用户读取对象
-                            minioclient.setBucketPolicy(SetBucketPolicyArgs.
-                                    builder().
-                                    bucket(minioProperties.getDataRemittanceReviewBucketName()). // 指定存储桶名称
-                                            config(createBucketPolicyConfig(minioProperties.getDataRemittanceReviewBucketName())). // 指定存储桶策略配置
-                                            build());
-                        }
-                        Long dataRemittanceFileMaxId = dataRemittanceFileMapper.getMaxIdByRemittanceId(id);
-                        for (MultipartFile m : files) {
-                            DataRemittanceFile dataRemittanceFile = new DataRemittanceFile();
-                            dataRemittanceFile.setRemittanceId(dataRemittance.getId());
-                            dataRemittanceFileMapper.addDataRemittanceFile(dataRemittanceFile);
-                            // 构建文件名，包含日期和UUID，确保文件名的唯一性
-                            String dataRemittanceFileName = String.valueOf(dataRemittance.getId()) + "/" + String.valueOf(dataRemittanceFile.getId()) + "/" + UUID.randomUUID() + "-" + m.getOriginalFilename();
-                            minioclient.putObject(PutObjectArgs.builder()
-                                    .bucket(minioProperties.getDataRemittanceBucketName())    //把文件上传到名为myfile的存储桶中
-                                    .object(dataRemittanceFileName) //上传之后的文件的新名称
-                                    .contentType(m.getContentType())
-                                    .stream(m.getInputStream(), m.getSize(), -1)
-                                    .build());
-                            String dataRemittanceFileUrl = minioProperties.getEndpoint() + minioProperties.getDataRemittanceBucketName() + "/" + dataRemittanceFileName;
-                            dataRemittanceFile.setRemittanceFileName(m.getOriginalFilename());
-                            dataRemittanceFile.setRemittanceFileUrl(dataRemittanceFileUrl);
-                            dataRemittanceFileMapper.updateDataRemittanceFileById(dataRemittanceFile);
-
-
-                            DataRemittanceReviewFile dataRemittanceReviewFile = new DataRemittanceReviewFile();
-                            dataRemittanceReviewFile.setRemittanceReviewId(dataRemittanceReview.getId());
-                            dataRemittanceReviewFileMapper.addDataRemittanceReviewFile(dataRemittanceReviewFile);
-                            // 构建文件名，包含日期和UUID，确保文件名的唯一性
-                            String dataRemittanceReviewFileName = String.valueOf(dataRemittance.getId()) + "/" + String.valueOf(dataRemittanceReview.getId()) + "/" + String.valueOf(dataRemittanceReviewFile.getId()) + "/" + UUID.randomUUID() + "-" + m.getOriginalFilename();
-                            minioclient.putObject(PutObjectArgs.builder()
-                                    .bucket(minioProperties.getDataRemittanceReviewBucketName())    //把文件上传到名为myfile的存储桶中
-                                    .object(dataRemittanceReviewFileName) //上传之后的文件的新名称
-                                    .contentType(m.getContentType())
-                                    .stream(m.getInputStream(), m.getSize(), -1)
-                                    .build());
-                            String dataRemittanceReviewFileUrl = minioProperties.getEndpoint() + minioProperties.getDataRemittanceReviewBucketName() + "/" + dataRemittanceReviewFileName;
-                            dataRemittanceReviewFile.setRemittanceReviewFileName(m.getOriginalFilename());
-                            dataRemittanceReviewFile.setRemittanceReviewFileUrl(dataRemittanceReviewFileUrl);
-                            dataRemittanceReviewFileMapper.updateDataRemittanceReviewFileById(dataRemittanceReviewFile);
-                        }
-                        if (null != dataRemittanceFileMaxId && 0 != dataRemittanceFileMaxId) {
-                            dataRemittanceFileMapper.delByIdAndRemittanceId(dataRemittanceFileMaxId, id);
-                        }
-                    } catch (Exception e) {
-                        ExceptionTool.throwException("文件上传失败!", "7000");
-                    }
-                }
-            }
-        }
-
-
-        return ResultBuilder.aResult().msg("重提成功").code("2000").build();
-    }
-
 
     /**
      * 更新提交数据汇交
@@ -247,7 +117,8 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
                 dataRemittance.setSubjectAreaId(subjectAreaId);
                 dataRemittance.setIndustryTypeId(industryTypeId);
                 dataRemittance.setReviewTypeId(1L);
-
+                dataRemittance.setRemittanceTypeId(2L);
+                dataRemittance.setIsShare(2);
                 dataRemittance.setUpdateBy(userId);
                 dataRemittance.setUpdateTime(todayAllStr);
                 dataRemittance.setDataType(dataType);
@@ -262,6 +133,7 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
                 dataRemittanceReview.setSubjectAreaId(subjectAreaId);
                 dataRemittanceReview.setDataOpenTypeId(dataOpenTypeId);
                 dataRemittanceReview.setReviewTypeId(1L);
+
                 dataRemittanceReview.setCreateBy(oldDataRemittance.getCreateBy());
                 dataRemittanceReview.setCreateTime(oldDataRemittance.getCreateTime());
                 dataRemittanceReview.setUpdateBy(userId);
@@ -269,7 +141,7 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
                 dataRemittanceReview.setDataType(dataType);
                 dataRemittanceReview.setDataFormat(dataFormat);
                 dataRemittanceReview.setRemark(remark);
-                dataRemittanceReview.setRemittanceType("1");
+                dataRemittanceReview.setRemittanceTypeId(2L);
 
                 dataRemittanceReviewMapper.addDataRemittanceReview(dataRemittanceReview);
 
@@ -359,6 +231,143 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
     }
 
 
+    /**
+     * 重新提交数据汇交
+     *
+     * @param dataName
+     * @param dataName
+     * @param dataOpenTypeId
+     * @param subjectAreaId
+     * @param industryTypeId
+     * @param dataType
+     * @param dataFormat
+     * @param remark
+     * @return
+     */
+    @Transactional
+    @Override
+    public Result afreshAddDataRemittance(Long id, String dataName, Long dataOpenTypeId, Long subjectAreaId, Long industryTypeId, String dataType, String dataFormat, String remark, List<MultipartFile> files) {
+        Long userId = SecurityUtils.getUserId();
+        DataRemittance oldDataRemittance = dataRemittanceMapper.getDataRemittanceByIdAndLockIn(id);
+        if (null == oldDataRemittance) {
+            ExceptionTool.throwException("数据不存在!", "7000");
+        } else {
+            if (2 != oldDataRemittance.getReviewTypeId()) {
+                ExceptionTool.throwException("不允许重新提交!", "7000");
+            } else {
+                String todayAllStr = DataConversionUtil.getTodayAllStr(new Date());
+                DataRemittance dataRemittance = new DataRemittance();
+                dataRemittance.setId(id);
+                dataRemittance.setDataName(dataName);
+                dataRemittance.setDataOpenTypeId(dataOpenTypeId);
+                dataRemittance.setSubjectAreaId(subjectAreaId);
+                dataRemittance.setIndustryTypeId(industryTypeId);
+                dataRemittance.setReviewTypeId(2L);
+                dataRemittance.setRemittanceTypeId(3L);
+                dataRemittance.setIsShare(2);
+                dataRemittance.setUpdateBy(userId);
+                dataRemittance.setUpdateTime(todayAllStr);
+                dataRemittance.setDataType(dataType);
+                dataRemittance.setDataFormat(dataFormat);
+                dataRemittance.setRemark(remark);
+                dataRemittanceMapper.updateDataRemittanceById(dataRemittance);
+
+                DataRemittanceReview dataRemittanceReview = new DataRemittanceReview();
+                dataRemittanceReview.setRemittanceId(id);
+                dataRemittanceReview.setDataName(dataName);
+                dataRemittanceReview.setIndustryTypeId(industryTypeId);
+                dataRemittanceReview.setSubjectAreaId(subjectAreaId);
+                dataRemittanceReview.setDataOpenTypeId(dataOpenTypeId);
+                dataRemittanceReview.setReviewTypeId(1L);
+                dataRemittanceReview.setCreateBy(oldDataRemittance.getCreateBy());
+                dataRemittanceReview.setCreateTime(oldDataRemittance.getCreateTime());
+                dataRemittanceReview.setUpdateBy(userId);
+                dataRemittanceReview.setUpdateTime(todayAllStr);
+                dataRemittanceReview.setDataType(dataType);
+                dataRemittanceReview.setDataFormat(dataFormat);
+                dataRemittanceReview.setRemark(remark);
+                dataRemittanceReview.setRemittanceTypeId(3L);
+                dataRemittanceReviewMapper.addDataRemittanceReview(dataRemittanceReview);
+
+                remittanceVsReviewMapper.updateRemittanceVsReviewByRemittanceId(dataRemittance.getId(),dataRemittanceReview.getId());
+
+                ReviewAuditRecord reviewAuditRecord=new ReviewAuditRecord();
+                reviewAuditRecord.setReviewId(dataRemittanceReview.getId());
+                reviewAuditRecordMapper.addReviewAuditRecord(reviewAuditRecord);
+
+                if (null != files && files.size() > 0) {
+                    try {
+                        // 检查指定的存储桶是否存在
+                        boolean dataRemittanceBucketNameIsBucketExists = minioclient.bucketExists(BucketExistsArgs.builder().bucket(minioProperties.getDataRemittanceBucketName()).build());
+                        if (!dataRemittanceBucketNameIsBucketExists) {// 如果存储桶不存在，则创建存储桶
+                            minioclient.makeBucket(MakeBucketArgs.builder().bucket(minioProperties.getDataRemittanceBucketName()).build());
+                            // 设置存储桶策略，允许匿名用户读取对象
+                            minioclient.setBucketPolicy(SetBucketPolicyArgs.
+                                    builder().
+                                    bucket(minioProperties.getDataRemittanceBucketName()). // 指定存储桶名称
+                                            config(createBucketPolicyConfig(minioProperties.getDataRemittanceBucketName())). // 指定存储桶策略配置
+                                            build());
+                        }
+
+                        boolean dataRemittanceReviewBucketNameIsBucketExists = minioclient.bucketExists(BucketExistsArgs.builder().bucket(minioProperties.getDataRemittanceReviewBucketName()).build());
+                        if (!dataRemittanceReviewBucketNameIsBucketExists) {// 如果存储桶不存在，则创建存储桶
+                            minioclient.makeBucket(MakeBucketArgs.builder().bucket(minioProperties.getDataRemittanceReviewBucketName()).build());
+                            // 设置存储桶策略，允许匿名用户读取对象
+                            minioclient.setBucketPolicy(SetBucketPolicyArgs.
+                                    builder().
+                                    bucket(minioProperties.getDataRemittanceReviewBucketName()). // 指定存储桶名称
+                                            config(createBucketPolicyConfig(minioProperties.getDataRemittanceReviewBucketName())). // 指定存储桶策略配置
+                                            build());
+                        }
+                        Long dataRemittanceFileMaxId = dataRemittanceFileMapper.getMaxIdByRemittanceId(id);
+                        for (MultipartFile m : files) {
+                            DataRemittanceFile dataRemittanceFile = new DataRemittanceFile();
+                            dataRemittanceFile.setRemittanceId(dataRemittance.getId());
+                            dataRemittanceFileMapper.addDataRemittanceFile(dataRemittanceFile);
+                            // 构建文件名，包含日期和UUID，确保文件名的唯一性
+                            String dataRemittanceFileName = String.valueOf(dataRemittance.getId()) + "/" + String.valueOf(dataRemittanceFile.getId()) + "/" + UUID.randomUUID() + "-" + m.getOriginalFilename();
+                            minioclient.putObject(PutObjectArgs.builder()
+                                    .bucket(minioProperties.getDataRemittanceBucketName())    //把文件上传到名为myfile的存储桶中
+                                    .object(dataRemittanceFileName) //上传之后的文件的新名称
+                                    .contentType(m.getContentType())
+                                    .stream(m.getInputStream(), m.getSize(), -1)
+                                    .build());
+                            String dataRemittanceFileUrl = minioProperties.getEndpoint() + minioProperties.getDataRemittanceBucketName() + "/" + dataRemittanceFileName;
+                            dataRemittanceFile.setRemittanceFileName(m.getOriginalFilename());
+                            dataRemittanceFile.setRemittanceFileUrl(dataRemittanceFileUrl);
+                            dataRemittanceFileMapper.updateDataRemittanceFileById(dataRemittanceFile);
+
+
+                            DataRemittanceReviewFile dataRemittanceReviewFile = new DataRemittanceReviewFile();
+                            dataRemittanceReviewFile.setRemittanceReviewId(dataRemittanceReview.getId());
+                            dataRemittanceReviewFileMapper.addDataRemittanceReviewFile(dataRemittanceReviewFile);
+                            // 构建文件名，包含日期和UUID，确保文件名的唯一性
+                            String dataRemittanceReviewFileName = String.valueOf(dataRemittance.getId()) + "/" + String.valueOf(dataRemittanceReview.getId()) + "/" + String.valueOf(dataRemittanceReviewFile.getId()) + "/" + UUID.randomUUID() + "-" + m.getOriginalFilename();
+                            minioclient.putObject(PutObjectArgs.builder()
+                                    .bucket(minioProperties.getDataRemittanceReviewBucketName())    //把文件上传到名为myfile的存储桶中
+                                    .object(dataRemittanceReviewFileName) //上传之后的文件的新名称
+                                    .contentType(m.getContentType())
+                                    .stream(m.getInputStream(), m.getSize(), -1)
+                                    .build());
+                            String dataRemittanceReviewFileUrl = minioProperties.getEndpoint() + minioProperties.getDataRemittanceReviewBucketName() + "/" + dataRemittanceReviewFileName;
+                            dataRemittanceReviewFile.setRemittanceReviewFileName(m.getOriginalFilename());
+                            dataRemittanceReviewFile.setRemittanceReviewFileUrl(dataRemittanceReviewFileUrl);
+                            dataRemittanceReviewFileMapper.updateDataRemittanceReviewFileById(dataRemittanceReviewFile);
+                        }
+                        if (null != dataRemittanceFileMaxId && 0 != dataRemittanceFileMaxId) {
+                            dataRemittanceFileMapper.delByIdAndRemittanceId(dataRemittanceFileMaxId, id);
+                        }
+                    } catch (Exception e) {
+                        ExceptionTool.throwException("文件上传失败!", "7000");
+                    }
+                }
+            }
+        }
+
+
+        return ResultBuilder.aResult().msg("重提成功").code("2000").build();
+    }
+
 
     /**
      * 添加数据汇交
@@ -383,6 +392,8 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
         dataRemittance.setSubjectAreaId(subjectAreaId);
         dataRemittance.setIndustryTypeId(industryTypeId);
         dataRemittance.setReviewTypeId(1L);
+        dataRemittance.setRemittanceTypeId(1L);
+        dataRemittance.setIsShare(2);
         dataRemittance.setCreateBy(userId);
         dataRemittance.setCreateTime(todayAllStr);
         dataRemittance.setUpdateBy(userId);
@@ -399,6 +410,7 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
         dataRemittanceReview.setSubjectAreaId(subjectAreaId);
         dataRemittanceReview.setDataOpenTypeId(dataOpenTypeId);
         dataRemittanceReview.setReviewTypeId(1L);
+
         dataRemittanceReview.setCreateBy(userId);
         dataRemittanceReview.setCreateTime(todayAllStr);
         dataRemittanceReview.setUpdateBy(userId);
@@ -406,8 +418,7 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
         dataRemittanceReview.setDataType(dataType);
         dataRemittanceReview.setDataFormat(dataFormat);
         dataRemittanceReview.setRemark(remark);
-        dataRemittanceReview.setRemittanceType("0");
-
+        dataRemittanceReview.setRemittanceTypeId(1L);
         dataRemittanceReviewMapper.addDataRemittanceReview(dataRemittanceReview);
 
         RemittanceVsReview remittanceVsReview = new RemittanceVsReview();
@@ -488,6 +499,22 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
         return ResultBuilder.aResult().msg("添加成功").code("2000").build();
     }
 
+
+
+
+
+    /**
+     * 查看汇交数据的审核信息
+     * @param remittanceId
+     * @return
+     */
+    @Transactional
+    @Override
+    public Result getDataRemittanceReviewData(Long remittanceId) {
+        JSONObject reviewData=remittanceVsReviewMapper.getDataRemittanceReviewDataByRemittanceId(remittanceId);
+        return ResultBuilder.aResult().code("2000").data(reviewData).build();
+    }
+
     // 创建存储桶策略配置，允许匿名用户读取存储桶中的对象
     private String createBucketPolicyConfig(String bucketName) {
         // 使用String.format方法格式化存储桶策略配置字符串
@@ -506,15 +533,7 @@ public class DataRemittanceServiceExteriorImpl implements DataRemittanceServiceE
         JSONObject dataRemittance = dataRemittanceMapper.getDataRemittanceById(id);
         return ResultBuilder.aResult().code("2000").data(dataRemittance).build();
     }
-/////////////////////////////
-
-
-
-
-
-
-
-
+//////////////////////////////////////////////
 
 
 

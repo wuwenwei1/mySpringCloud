@@ -21,8 +21,8 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: csmysql..
-    url: jdbc:mysql://182.44.12.180:4565/metrology?serverTimezone=UTC&characterEncoding=utf-8
+    password: root
+    url: jdbc:mysql://localhost:3306/metrology?serverTimezone=UTC&characterEncoding=utf-8
     druid:
       #配置可视化控制台页面
       stat-view-servlet:
@@ -61,11 +61,10 @@ spring:
       # 数据库服务宕机自动重连机制，true表示不重连，false表示重连（默认为false）
       breakAfterAcquireFailure: false
       # 连接出错后重试时间间隔
-      timeBetweenConnectErrorMillis: 1000
+      timeBetweenConnectErrorMillis: 2000
       # 是否自动回收超时连接，如果执行数据库sql语句的时长超出removeAbandonedTimeout的限制，且该属性设置为 true，则连接被认为是被泄露并且删除这个连接
       remove-abandoned: true
-      # 泄露的连接可以被删除的超时时间（秒），该值应设置为应用程序查询可能执行的最长时间
-      remove-abandoned-timeout: 300
+
   data:
     #redis
     redis:

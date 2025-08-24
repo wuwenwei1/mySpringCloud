@@ -20,7 +20,24 @@ public class DataRemittanceController {
 
     @Autowired
     private DataRemittanceServiceExterior dataRemittanceServiceExterior;
+    /**
+     * 修改数据共享
+     * @param id
+     * @param isShare
+     * @return
+     */
+    @PostMapping("/updateShare")
+    public Result updateShare(@RequestParam Long id,
+                              @RequestParam Integer isShare){
+        if(null==id){
+            return ResultBuilder.aResult().msg("请选择数据!").code("7000").build();
+        }
 
+        if(1!=isShare&&2!=isShare){
+            return ResultBuilder.aResult().msg("isShare参数异常!").code("7000").build();
+        }
+        return dataRemittanceServiceExterior.updateShareById(id,isShare);
+    }
 
     /**
      * 汇交数据管理列表

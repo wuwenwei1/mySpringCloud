@@ -8,12 +8,14 @@ import java.util.List;
 
 public interface DataRemittanceReviewMapper {
     void addDataRemittanceReview(@Param("dataRemittanceReview") DataRemittanceReview dataRemittanceReview);
+
+
     DataRemittanceReview getDataRemittanceReviewId(@Param("id")Long id);
 
     void updateReviewTypeIdById(@Param("id")Long id,@Param("reviewTypeId")Long reviewTypeId);
 
     JSONObject getDataRemittanceReviewById(@Param("id")Long id);
-    ///////////////////////////////////////////
+
 
 
 
@@ -28,7 +30,7 @@ public interface DataRemittanceReviewMapper {
                                                  @Param("dataOpenTypeId")Long dataOpenTypeId,
                                                  @Param("submitName")String submitName,
                                                  @Param("reviewTypeId")Long reviewTypeId,
-                                                 @Param("remittanceType")Long remittanceType,
+                                                 @Param("remittanceTypeId")Long remittanceTypeId,
                                                  @Param("reviewName")String reviewName,
                                                  @Param("createStartTime")String createStartTime,
                                                  @Param("createEndTime")String createEndTime,
@@ -41,8 +43,13 @@ public interface DataRemittanceReviewMapper {
                                       @Param("dataOpenTypeId")Long dataOpenTypeId,
                                       @Param("submitName")String submitName,
                                       @Param("reviewTypeId")Long reviewTypeId,
-                                      @Param("remittanceType")Long remittanceType,
+                                      @Param("remittanceTypeId")Long remittanceTypeId,
                                       @Param("reviewName")String reviewName,
                                       @Param("createStartTime")String createStartTime,
                                       @Param("createEndTime")String createEndTime);
+
+
+
+
+    ///////////////////////////////////////////
 }

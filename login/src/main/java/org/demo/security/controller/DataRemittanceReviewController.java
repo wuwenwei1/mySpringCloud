@@ -24,6 +24,7 @@ public class DataRemittanceReviewController {
     private DataRemittanceReviewServiceExterior dataRemittanceReviewServiceExterior;
 
 
+
     /**
      * 汇交数据类型下拉框
      * @return
@@ -56,7 +57,7 @@ public class DataRemittanceReviewController {
      * @param dataOpenTypeId
      * @param submitName
      * @param reviewTypeId
-     * @param remittanceType
+     * @param remittanceTypeId
      * @param reviewName
      * @param createStartTime
      * @param createEndTime
@@ -71,7 +72,7 @@ public class DataRemittanceReviewController {
                                               @RequestParam(required = false) Long dataOpenTypeId,
                                               @RequestParam(required = false) String submitName,
                                               @RequestParam(required = false) Long reviewTypeId,
-                                              @RequestParam(required = false) Long remittanceType,
+                                              @RequestParam(required = false) Long remittanceTypeId,
                                               @RequestParam(required = false) String reviewName,
                                               @RequestParam(required = false) String createStartTime,
                                               @RequestParam(required = false) String createEndTime,
@@ -99,23 +100,8 @@ public class DataRemittanceReviewController {
             createEndTime="";
         }
         Integer starIndex = (pageNum - 1) * pageSize;
-        return dataRemittanceReviewServiceExterior.getDataRemittanceReviewList(dataName,industryTypeId,subjectAreaId,dataOpenTypeId,submitName,reviewTypeId,remittanceType,reviewName,createStartTime,createEndTime,starIndex,pageSize);
+        return dataRemittanceReviewServiceExterior.getDataRemittanceReviewList(dataName,industryTypeId,subjectAreaId,dataOpenTypeId,submitName,reviewTypeId,remittanceTypeId,reviewName,createStartTime,createEndTime,starIndex,pageSize);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * 获取汇交数据的历史审核列表

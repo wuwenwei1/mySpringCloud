@@ -16,18 +16,46 @@
     <result column="dataType" jdbcType="VARCHAR" property="dataType" />
     <result column="dataFormat" jdbcType="VARCHAR" property="dataFormat" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
-    <result column="remittanceType" jdbcType="VARCHAR" property="remittanceType" />
+    <result column="remittanceTypeId" jdbcType="BIGINT" property="remittanceTypeId" />
   </resultMap>
 
 
 
+
+    <insert id="addDataRemittanceReview" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `data_remittance_review`(`remittanceId`,
+                                             `dataName`,
+                                             `industryTypeId`,
+                                             `subjectAreaId`,
+                                             `dataOpenTypeId`,
+                                             `reviewTypeId`,
+                                             `createBy`,
+                                             `createTime`,
+                                             `updateBy`,
+                                             `updateTime`,
+                                             `dataType`,
+                                             `dataFormat`,
+                                             `remark`,
+                                             `remittanceTypeId`) VALUES ( ${dataRemittanceReview.remittanceId},
+                                                                        #{dataRemittanceReview.dataName},
+                                                                        ${dataRemittanceReview.industryTypeId},
+                                                                        ${dataRemittanceReview.subjectAreaId},
+                                                                        ${dataRemittanceReview.dataOpenTypeId},
+                                                                        ${dataRemittanceReview.reviewTypeId},
+                                                                        ${dataRemittanceReview.createBy},
+                                                                        #{dataRemittanceReview.createTime},
+                                                                        ${dataRemittanceReview.updateBy},
+                                                                        #{dataRemittanceReview.updateTime},
+                                                                        #{dataRemittanceReview.dataType},
+                                                                        #{dataRemittanceReview.dataFormat},
+                                                                        #{dataRemittanceReview.remark},
+                                                                        ${dataRemittanceReview.remittanceTypeId});
+    </insert>
+
+
+
     <select id="getDataRemittanceReviewList" resultType="com.alibaba.fastjson2.JSONObject">
-        SELECT drr.id,drr.dataName,drr.industryTypeId,drr.subjectAreaId,drr.dataOpenTypeId,drr.reviewTypeId,u1.userName AS submitName,drr.createTime,it.industryName,sa.subjectName,dot.dataOpenTypeName,rt.reviewName AS reviewStatus,CAST(drr.remittanceType AS SIGNED) AS remittanceType,CASE
-                                                                                                                                                                                                                                                                                                WHEN drr.remittanceType='0' THEN '新增'
-                                                                                                                                                                                                                                                                                                WHEN drr.remittanceType='1' THEN '更新'
-                                                                                                                                                                                                                                                                                                WHEN drr.remittanceType='2' THEN '重提'
-                                                                                                                                                                                                                                                                                                ELSE ''
-            END AS 'remittanceTypeView',u2.userName AS reviewName FROM `data_remittance_review` drr LEFT JOIN industry_type it ON drr.industryTypeId=it.id LEFT JOIN subject_area sa ON drr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON drr.dataOpenTypeId=dot.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id LEFT JOIN `user` u1 ON drr.createBy=u1.userId LEFT JOIN review_audit_record rar ON drr.id=rar.reviewId LEFT JOIN audit_record ar ON rar.auditRecordId=ar.id LEFT JOIN `user` u2 ON ar.reviewBy=u2.userId
+        SELECT drr.id,drr.dataName,drr.industryTypeId,drr.subjectAreaId,drr.dataOpenTypeId,drr.reviewTypeId,drr.remittanceTypeId,u1.userName AS submitName,drr.createTime,it.industryName,sa.subjectName,dot.dataOpenTypeName,rt.reviewName  AS reviewStatus,ret.remittanceName,u2.userName AS reviewName FROM `data_remittance_review` drr LEFT JOIN industry_type it ON drr.industryTypeId=it.id LEFT JOIN subject_area sa ON drr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON drr.dataOpenTypeId=dot.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id LEFT JOIN `user` u1 ON drr.createBy=u1.userId LEFT JOIN review_audit_record rar ON drr.id=rar.reviewId LEFT JOIN audit_record ar ON rar.auditRecordId=ar.id LEFT JOIN `user` u2 ON ar.reviewBy=u2.userId LEFT JOIN remittance_type ret ON drr.remittanceTypeId=ret.id
         <where>
             <if test="''!=dataName and null!=dataName">
                 dataName LIKE concat('%',#{dataName},'%')
@@ -44,8 +72,8 @@
             <if test="''!=reviewTypeId and null!=reviewTypeId">
                 and reviewTypeId=${reviewTypeId}
             </if>
-            <if test="''!=remittanceType and null!=remittanceType">
-                and remittanceType=${remittanceType}
+            <if test="''!=remittanceTypeId and null!=remittanceTypeId">
+                and remittanceTypeId=${remittanceTypeId}
             </if>
 
             <if test="''!=submitName and null!=submitName">
@@ -66,7 +94,7 @@
 
 
     <select id="getDataRemittanceReviewTotal" resultType="java.lang.Long">
-        SELECT COUNT(drr.id) FROM `data_remittance_review` drr LEFT JOIN industry_type it ON drr.industryTypeId=it.id LEFT JOIN subject_area sa ON drr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON drr.dataOpenTypeId=dot.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id LEFT JOIN `user` u1 ON drr.createBy=u1.userId LEFT JOIN review_audit_record rar ON drr.id=rar.reviewId LEFT JOIN audit_record ar ON rar.auditRecordId=ar.id LEFT JOIN `user` u2 ON ar.reviewBy=u2.userId
+        SELECT COUNT(drr.id) FROM `data_remittance_review` drr LEFT JOIN industry_type it ON drr.industryTypeId=it.id LEFT JOIN subject_area sa ON drr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON drr.dataOpenTypeId=dot.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id LEFT JOIN `user` u1 ON drr.createBy=u1.userId LEFT JOIN review_audit_record rar ON drr.id=rar.reviewId LEFT JOIN audit_record ar ON rar.auditRecordId=ar.id LEFT JOIN `user` u2 ON ar.reviewBy=u2.userId LEFT JOIN remittance_type ret ON drr.remittanceTypeId=ret.id
         <where>
             <if test="''!=dataName and null!=dataName">
                 dataName LIKE concat('%',#{dataName},'%')
@@ -83,8 +111,8 @@
             <if test="''!=reviewTypeId and null!=reviewTypeId">
                 and reviewTypeId=${reviewTypeId}
             </if>
-            <if test="''!=remittanceType and null!=remittanceType">
-                and remittanceType=${remittanceType}
+            <if test="''!=remittanceTypeId and null!=remittanceTypeId">
+                and remittanceTypeId=${remittanceTypeId}
             </if>
 
             <if test="''!=submitName and null!=submitName">
@@ -108,13 +136,8 @@
     </update>
 
     <select id="getDataRemittanceReviewById" resultType="com.alibaba.fastjson2.JSONObject">
-        SELECT drr.*,it.industryName,sa.subjectName,dot.dataOpenTypeName,rt.reviewName,CASE
-                                                                                           WHEN drr.remittanceType=0 THEN '新增'
-                                                                                           WHEN drr.remittanceType=1 THEN '更新'
-                                                                                           WHEN drr.remittanceType=2 THEN '重提'
-                                                                                           ELSE ''
-            END AS 'remittanceTypeName' FROM (SELECT * FROM `data_remittance_review` WHERE id=${id}) drr LEFT JOIN industry_type it ON drr.industryTypeId=it.id LEFT JOIN subject_area sa ON drr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON drr.dataOpenTypeId=dot.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id;
-</select>
+        SELECT drr.*,it.industryName,sa.subjectName,dot.dataOpenTypeName,rt.reviewName,ret.remittanceName FROM (SELECT * FROM `data_remittance_review` WHERE id=${id}) drr LEFT JOIN industry_type it ON drr.industryTypeId=it.id LEFT JOIN subject_area sa ON drr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON drr.dataOpenTypeId=dot.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id LEFT JOIN remittance_type ret ON drr.remittanceTypeId=ret.id;
+    </select>
 
 
     <select id="getDataRemittanceReviewId" resultMap="BaseResultMap">
@@ -125,42 +148,9 @@
         SELECT COUNT(id) FROM `data_remittance_review` WHERE remittanceId=${remittanceId};
     </select>
   <select id="getDataRemittanceReviewHisByRemittanceId" resultType="com.alibaba.fastjson2.JSONObject">
-      SELECT SUBSTRING(drr.createTime, 1, 10) AS createTime,rt.reviewName, CASE
-                                                                               WHEN drr.remittanceType='0' THEN '新增'
-                                                                               WHEN drr.remittanceType='1' THEN '更新'
-                                                                               WHEN drr.remittanceType='2' THEN '重提'
-                                                                               ELSE ''
-          END AS 'remittanceType' FROM (SELECT DISTINCT reviewId FROM remittance_vs_review WHERE remittanceId=${remittanceId}) rvr LEFT JOIN data_remittance_review drr ON rvr.reviewId=drr.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id ORDER BY drr.createTime LIMIT ${newStarSize},${pageSize};
+      SELECT SUBSTRING(drr.createTime, 1, 10) AS createTime,rt.reviewName, ret.remittanceName FROM (SELECT DISTINCT reviewId FROM remittance_vs_review WHERE remittanceId=${remittanceId}) rvr LEFT JOIN data_remittance_review drr ON rvr.reviewId=drr.id LEFT JOIN review_type rt ON drr.reviewTypeId=rt.id LEFT JOIN remittance_type ret ON drr.remittanceTypeId=ret.id ORDER BY drr.createTime LIMIT ${newStarSize},${pageSize};
   </select>
 
-  <insert id="addDataRemittanceReview" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO `data_remittance_review`(`remittanceId`,
-                                  `dataName`,
-                                  `industryTypeId`,
-                                  `subjectAreaId`,
-                                  `dataOpenTypeId`,
-                                  `reviewTypeId`,
-                                  `createBy`,
-                                  `createTime`,
-                                  `updateBy`,
-                                  `updateTime`,
-                                  `dataType`,
-                                  `dataFormat`,
-                                  `remark`,
-                                  `remittanceType`) VALUES ( ${dataRemittanceReview.remittanceId},
-                                                         #{dataRemittanceReview.dataName},
-                                                         ${dataRemittanceReview.industryTypeId},
-                                                         ${dataRemittanceReview.subjectAreaId},
-                                                         ${dataRemittanceReview.dataOpenTypeId},
-                                                         ${dataRemittanceReview.reviewTypeId},
-                                                         ${dataRemittanceReview.createBy},
-                                                         #{dataRemittanceReview.createTime},
-                                                         ${dataRemittanceReview.updateBy},
-                                                         #{dataRemittanceReview.updateTime},
-                                                         #{dataRemittanceReview.dataType},
-                                                         #{dataRemittanceReview.dataFormat},
-                                                         #{dataRemittanceReview.remark},
-                                                         #{dataRemittanceReview.remittanceType});
-  </insert>
+
 
 </mapper>

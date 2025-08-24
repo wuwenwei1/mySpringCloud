@@ -8,6 +8,8 @@
     <result column="subjectAreaId" jdbcType="BIGINT" property="subjectAreaId" />
     <result column="dataOpenTypeId" jdbcType="BIGINT" property="dataOpenTypeId" />
     <result column="reviewTypeId" jdbcType="BIGINT" property="reviewTypeId" />
+    <result column="remittanceTypeId" jdbcType="BIGINT" property="remittanceTypeId" />
+    <result column="isShare" jdbcType="INTEGER" property="isShare" />
     <result column="createBy" jdbcType="BIGINT" property="createBy" />
     <result column="createTime" jdbcType="VARCHAR" property="createTime" />
     <result column="updateBy" jdbcType="BIGINT" property="updateBy" />
@@ -15,7 +17,62 @@
     <result column="dataType" jdbcType="VARCHAR" property="dataType" />
     <result column="dataFormat" jdbcType="VARCHAR" property="dataFormat" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
+
   </resultMap>
+
+    <update id="updateIsShareById">
+        UPDATE `data_remittance` SET  `isShare` = ${isShare},  `updateBy` = ${updateBy}, `updateTime` = #{updateTime} WHERE `id` = ${id};
+    </update>
+
+    <select id="getDataRemittanceObjectById" resultMap="BaseResultMap">
+        SELECT * FROM `data_remittance` WHERE id=${id}
+    </select>
+
+    <update id="updateDataRemittanceById">
+        UPDATE `data_remittance` SET `dataName` = #{dataRemittance.dataName},
+                                     `industryTypeId` = ${dataRemittance.industryTypeId},
+                                     `subjectAreaId` = ${dataRemittance.subjectAreaId},
+                                     `dataOpenTypeId` = ${dataRemittance.dataOpenTypeId},
+                                     `reviewTypeId` = ${dataRemittance.reviewTypeId},
+                                     `remittanceTypeId` = ${dataRemittance.remittanceTypeId},
+                                     `updateBy` = ${dataRemittance.updateBy},
+                                     `updateTime` = #{dataRemittance.updateTime},
+                                     `dataType` = #{dataRemittance.dataType},
+                                     `dataFormat` = #{dataRemittance.dataFormat},
+                                     `remark` = #{dataRemittance.remark} WHERE `id` = ${dataRemittance.id};
+    </update>
+
+    <insert id="addDataRemittance" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `data_remittance`(`dataName`,
+                                      `industryTypeId`,
+                                      `subjectAreaId`,
+                                      `dataOpenTypeId`,
+                                      `reviewTypeId`,
+                                      `remittanceTypeId`,
+                                      `isShare`,
+                                      `createBy`,
+                                      `createTime`,
+                                      `updateBy`,
+                                      `updateTime`,
+                                      `dataType`,
+                                      `dataFormat`,
+                                      `remark`) VALUES ( #{dataRemittance.dataName},
+                                                         ${dataRemittance.industryTypeId},
+                                                         ${dataRemittance.subjectAreaId},
+                                                         ${dataRemittance.dataOpenTypeId},
+                                                         ${dataRemittance.reviewTypeId},
+                                                         ${dataRemittance.remittanceTypeId},
+                                                         ${dataRemittance.isShare},
+                                                         ${dataRemittance.createBy},
+                                                         #{dataRemittance.createTime},
+                                                         ${dataRemittance.updateBy},
+                                                         #{dataRemittance.updateTime},
+                                                         #{dataRemittance.dataType},
+                                                         #{dataRemittance.dataFormat},
+                                                         #{dataRemittance.remark});
+    </insert>
+
+
 
     <select id="getDataRemittanceTotal" resultType="java.lang.Long">
         SELECT COUNT(dr.id) FROM (SELECT id,dataName,industryTypeId,subjectAreaId,dataOpenTypeId,reviewTypeId,createTime FROM `data_remittance`
@@ -41,35 +98,34 @@
             <if test="''!=createEndTime and null!=createEndTime">
                 and createTime &lt;= #{createEndTime}
             </if>
-        </where>) dr LEFT JOIN industry_type it ON dr.industryTypeId=it.id  LEFT JOIN subject_area sa ON dr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON dr.dataOpenTypeId =dot.id LEFT JOIN review_type rt ON dr.reviewTypeId=rt.id ;
+        </where>) dr LEFT JOIN industry_type it ON dr.industryTypeId=it.id  LEFT JOIN subject_area sa ON dr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON dr.dataOpenTypeId =dot.id LEFT JOIN review_type rt ON dr.reviewTypeId=rt.id;
     </select>
 
     <select id="getDataRemittanceList" resultType="com.alibaba.fastjson2.JSONObject">
-        SELECT dr.*,it.industryName,sa.subjectName,dot.dataOpenTypeName,rt.reviewName FROM (SELECT id,dataName,industryTypeId,subjectAreaId,dataOpenTypeId,reviewTypeId,createTime FROM `data_remittance`
-            <where>
-                <if test="''!=dataName and null!=dataName">
-                    dataName LIKE concat('%',#{dataName},'%')
-                </if>
-                <if test="''!=industryTypeId and null!=industryTypeId">
-                    and industryTypeId=${industryTypeId}
-                </if>
-                <if test="''!=subjectAreaId and null!=subjectAreaId">
-                    and subjectAreaId=${subjectAreaId}
-                </if>
-                <if test="''!=dataOpenTypeId and null!=dataOpenTypeId">
-                    and dataOpenTypeId=${dataOpenTypeId}
-                </if>
-                <if test="''!=reviewTypeId and null!=reviewTypeId">
-                    and reviewTypeId=${reviewTypeId}
-                </if>
-                <if test="''!=createStartTime and null!=createStartTime">
-                    and createTime &gt;= #{createStartTime}
-                </if>
-                <if test="''!=createEndTime and null!=createEndTime">
-                    and createTime &lt;= #{createEndTime}
-                </if>
-        </where>
-              LIMIT ${starIndex}, ${pageSize}) dr LEFT JOIN industry_type it ON dr.industryTypeId=it.id  LEFT JOIN subject_area sa ON dr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON dr.dataOpenTypeId =dot.id LEFT JOIN review_type rt ON dr.reviewTypeId=rt.id;
+        SELECT dr.*,it.industryName,sa.subjectName,dot.dataOpenTypeName,rt.reviewName FROM (SELECT id,dataName,industryTypeId,subjectAreaId,dataOpenTypeId,reviewTypeId,createTime,remittanceTypeId,isShare FROM `data_remittance` <where>
+        <if test="''!=dataName and null!=dataName">
+            dataName LIKE concat('%',#{dataName},'%')
+        </if>
+        <if test="''!=industryTypeId and null!=industryTypeId">
+            and industryTypeId=${industryTypeId}
+        </if>
+        <if test="''!=subjectAreaId and null!=subjectAreaId">
+            and subjectAreaId=${subjectAreaId}
+        </if>
+        <if test="''!=dataOpenTypeId and null!=dataOpenTypeId">
+            and dataOpenTypeId=${dataOpenTypeId}
+        </if>
+        <if test="''!=reviewTypeId and null!=reviewTypeId">
+            and reviewTypeId=${reviewTypeId}
+        </if>
+        <if test="''!=createStartTime and null!=createStartTime">
+            and createTime &gt;= #{createStartTime}
+        </if>
+        <if test="''!=createEndTime and null!=createEndTime">
+            and createTime &lt;= #{createEndTime}
+        </if>
+    </where>
+        LIMIT ${starIndex}, ${pageSize}) dr LEFT JOIN industry_type it ON dr.industryTypeId=it.id  LEFT JOIN subject_area sa ON dr.subjectAreaId=sa.id LEFT JOIN data_open_type dot ON dr.dataOpenTypeId =dot.id LEFT JOIN review_type rt ON dr.reviewTypeId=rt.id;
     </select>
 
 
@@ -78,18 +134,7 @@
         UPDATE `data_remittance` SET `reviewTypeId` = ${reviewTypeId} WHERE `id` = ${id};
     </update>
 
-    <update id="updateDataRemittanceById">
-        UPDATE `data_remittance` SET `dataName` = #{dataRemittance.dataName},
-                                                 `industryTypeId` = ${dataRemittance.industryTypeId},
-                                                 `subjectAreaId` = ${dataRemittance.subjectAreaId},
-                                                 `dataOpenTypeId` = ${dataRemittance.dataOpenTypeId},
-                                                 `reviewTypeId` = ${dataRemittance.reviewTypeId},
-                                                 `updateBy` = ${dataRemittance.updateBy},
-                                                 `updateTime` = #{dataRemittance.updateTime},
-                                                 `dataType` = #{dataRemittance.dataType},
-                                                 `dataFormat` = #{dataRemittance.dataFormat},
-                                                 `remark` = #{dataRemittance.remark} WHERE `id` = ${dataRemittance.id};
-    </update>
+
 
 
     <select id="getDataRemittanceByIdAndLockIn" resultMap="BaseResultMap">
@@ -101,29 +146,5 @@
     </select>
 
 
-  <insert id="addDataRemittance" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO `data_remittance`(`dataName`,
-                       `industryTypeId`,
-                       `subjectAreaId`,
-                       `dataOpenTypeId`,
-                       `reviewTypeId`,
-                       `createBy`,
-                       `createTime`,
-                       `updateBy`,
-                       `updateTime`,
-                       `dataType`,
-                       `dataFormat`,
-                       `remark`) VALUES ( #{dataRemittance.dataName},
-                                          ${dataRemittance.industryTypeId},
-                                          ${dataRemittance.subjectAreaId},
-                                          ${dataRemittance.dataOpenTypeId},
-                                          ${dataRemittance.reviewTypeId},
-                                          ${dataRemittance.createBy},
-                                          #{dataRemittance.createTime},
-                                          ${dataRemittance.updateBy},
-                                          #{dataRemittance.updateTime},
-                                          #{dataRemittance.dataType},
-                                          #{dataRemittance.dataFormat},
-                                          #{dataRemittance.remark});
-  </insert>
+
 </mapper>

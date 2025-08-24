@@ -17,5 +17,7 @@ public interface DataRemittanceReviewServiceExterior {
 
     Result getDataRemittanceReviewByRemittanceId(Long remittanceId);
 
-    Result getDataRemittanceReviewList(String dataName, Long industryTypeId, Long subjectAreaId, Long dataOpenTypeId, String submitName, Long reviewTypeId, Long remittanceType, String reviewName, String createStartTime, String createEndTime, Integer starIndex, Integer pageSize);
+    Result getDataRemittanceReviewList(String dataName, Long industryTypeId, Long subjectAreaId, Long dataOpenTypeId, String submitName, Long reviewTypeId, Long remittanceTypeId, String reviewName, String createStartTime, String createEndTime, Integer starIndex, Integer pageSize);
+
+
 }

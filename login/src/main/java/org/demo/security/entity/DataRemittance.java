@@ -38,6 +38,16 @@ public class DataRemittance {
     private Long reviewTypeId;
 
     /**
+     * 是否共享(1:共享，2:不共享),默认1
+     */
+    private Integer isShare;
+
+    /**
+     * 汇交类型ID
+     */
+    private Long remittanceTypeId;
+
+    /**
      * 汇交方
      */
     private Long createBy;

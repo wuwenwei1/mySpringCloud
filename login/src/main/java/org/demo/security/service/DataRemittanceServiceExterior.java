@@ -18,4 +18,6 @@ public interface DataRemittanceServiceExterior {
 
 
     Result getDataRemittanceList(String dataName, Long industryTypeId, Long subjectAreaId, Long dataOpenTypeId, Long reviewTypeId, String createStartTime, String createEndTime, Integer starIndex,Integer pageSize);
+
+    Result updateShareById(Long id, Integer isShare);
 }

@@ -78,9 +78,9 @@ public class DataRemittanceReview {
     private String remark;
 
     /**
-     * 汇交类型(0:新增,1:更新,2:重提)
+     * 汇交类型ID
      */
-    private String remittanceType;
+    private Long remittanceTypeId;
 
 
 
